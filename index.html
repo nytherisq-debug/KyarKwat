@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ကျားကွက် - Myanmar Traditional Checkers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700;900&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --gold-dark: #B8860B;
+    --gold-light: #FFF0A0;
+    --red: #CC2200;
+    --red-dark: #8B0000;
+    --teak: #5C3A1E;
+    --teak-light: #8B5E3C;
+    --teak-dark: #3B1F0A;
+    --board-light: #E8D5A3;
+    --board-dark: #8B6914;
+    --blue-piece: #1a3a8f;
+    --yellow-piece: #e6c800;
+    --bg: #1a0a00;
+    --panel: #2d1507;
+    --text: #FFE4A0;
+    --glow: 0 0 20px #FFD70088;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    font-family: 'Noto Sans Myanmar', sans-serif;
+    color: var(--text);
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, #2d1507 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, #1a0800 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    overflow-x: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    padding: 20px 10px 10px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin-top: 15px;
+  }
+  .header h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(18px, 5vw, 36px);
+    color: var(--gold);
+    text-shadow: var(--glow);
+    letter-spacing: 3px;
+  }
+  .header .myanmar-title {
+    font-size: clamp(22px, 6vw, 42px);
+    font-weight: 900;
+    color: var(--gold-light);
+    text-shadow: 0 0 30px #FFD700aa;
+    margin-top: 5px;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    color: var(--gold-dark);
+    margin-top: 4px;
+    letter-spacing: 2px;
+  }
+
+  /* ===== MAIN LAYOUT ===== */
+  .app {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  /* ===== LOBBY ===== */
+  #lobby {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 30px 20px;
+  }
+
+  .lobby-card {
+    background: linear-gradient(135deg, var(--panel), #3d1e08);
+    border: 1px solid var(--gold-dark);
+    border-radius: 16px;
+    padding: 30px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 40px #00000088, inset 0 1px 0 #FFD70033;
+    position: relative;
+    overflow: hidden;
+  }
+  .lobby-card::before {
+    content: '♟';
+    position: absolute;
+    font-size: 120px;
+    opacity: 0.04;
+    right: -20px;
+    bottom: -20px;
+    color: var(--gold);
+  }
+
+  .lobby-card h2 {
+    font-size: 18px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--gold-dark);
+    padding-bottom: 12px;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+  .input-group label {
+    display: block;
+    font-size: 13px;
+    color: var(--gold-dark);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #1a0a00;
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Noto Sans Myanmar', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .input-group input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 12px #FFD70044;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Noto Sans Myanmar', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 1px;
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: #ffffff22;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
+  }
+  .btn:active::after { width: 300px; height: 300px; }
+
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-dark));
+    color: var(--teak-dark);
+    box-shadow: 0 4px 20px #FFD70044;
+    margin-bottom: 10px;
+  }
+  .btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px #FFD70066;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--gold-dark);
+    color: var(--gold);
+  }
+  .btn-outline:hover {
+    background: #FFD70011;
+    border-color: var(--gold);
+  }
+  .btn-red {
+    background: linear-gradient(135deg, var(--red-dark), var(--red));
+    color: white;
+    margin-top: 8px;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .divider {
+    text-align: center;
+    color: var(--gold-dark);
+    font-size: 12px;
+    margin: 15px 0;
+    position: relative;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: var(--gold-dark);
+  }
+  .divider::before { left: 0; }
+  .divider::after { right: 0; }
+
+  .room-code-display {
+    background: #0d0500;
+    border: 2px dashed var(--gold);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    margin: 15px 0;
+  }
+  .room-code-display .code {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 8px;
+    text-shadow: var(--glow);
+  }
+  .room-code-display .code-label {
+    font-size: 12px;
+    color: var(--gold-dark);
+    margin-top: 5px;
+  }
+
+  .waiting-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--gold-dark);
+    font-size: 14px;
+    margin-top: 15px;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--gold-dark);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== GAME SCREEN ===== */
+  #game-screen {
+    display: none;
+  }
+
+  .game-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Player Info Bar */
+  .players-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 560px;
+    gap: 10px;
+  }
+  .player-card {
+    flex: 1;
+    background: var(--panel);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 10px 14px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .player-card.active {
+    border-color: var(--gold);
+    box-shadow: var(--glow);
+  }
+  .player-card.active::before {
+    content: '▶';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+    font-size: 12px;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .player-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .player-piece {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px #00000088;
+  }
+  .piece-blue { background: radial-gradient(circle at 35% 35%, #4466cc, #0a1a5c); border: 2px solid #7799ff; }
+  .piece-yellow { background: radial-gradient(circle at 35% 35%, #ffe040, #8B6914); border: 2px solid #FFD700; }
+  .player-count {
+    font-size: 11px;
+    color: var(--gold-dark);
+    margin-top: 2px;
+  }
+
+  .vs-badge {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 14px;
+    color: var(--gold);
+    text-shadow: var(--glow);
+  }
+
+  /* Timer */
+  .timer {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--gold);
+    min-width: 60px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer.urgent { color: var(--red); animation: pulse 0.5s infinite; }
+
+  /* Board Container */
+  .board-container {
+    position: relative;
+  }
+  .board-frame {
+    background: linear-gradient(135deg, #6B3A1F, #3d1e08, #6B3A1F);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 
+      0 0 0 1px var(--gold-dark),
+      0 0 40px #00000088,
+      inset 0 0 20px #00000044;
+    position: relative;
+  }
+  .board-frame::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: min(90vw, 480px);
+    height: min(90vw, 480px);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .cell {
+    position: relative;
+    cursor: default;
+    transition: background 0.2s;
+  }
+  .cell.dark { background: var(--board-dark); }
+  .cell.light { background: var(--board-light); }
+  .cell.dark.valid-move {
+    background: #22aa44;
+    cursor: pointer;
+    animation: validPulse 1s infinite;
+  }
+  @keyframes validPulse { 0%,100%{background:#22aa44} 50%{background:#33cc55} }
+  .cell.dark.valid-move::after {
+    content: '';
+    position: absolute;
+    inset: 25%;
+    border-radius: 50%;
+    background: #ffffff44;
+  }
+  .cell.selected { background: #aa6600 !important; }
+
+  /* Pieces */
+  .piece {
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+  .piece:hover { transform: scale(1.08); }
+  .piece.blue-piece {
+    background: radial-gradient(circle at 35% 30%, #6688ee, #0d1d6e);
+    border: 3px solid #99aaff;
+    box-shadow: 0 4px 10px #00000088, 0 0 0 1px #0a1060, inset 0 -3px 6px #00000044;
+  }
+  .piece.yellow-piece {
+    background: radial-gradient(circle at 35% 30%, #fff176, #b8860b);
+    border: 3px solid #FFD700;
+    box-shadow: 0 4px 10px #00000088, 0 0 0 1px #7a5800, inset 0 -3px 6px #00000044;
+  }
+  .piece.king::after {
+    content: '♛';
+    font-size: clamp(12px, 3vw, 20px);
+    color: var(--gold);
+    text-shadow: 0 0 8px #000;
+    filter: drop-shadow(0 0 4px #FFD700);
+  }
+  .piece.blue-piece.king::after { color: #ffffff; }
+  .piece.selected-piece {
+    transform: scale(1.12) translateY(-4px);
+    box-shadow: 0 8px 20px #00000099, 0 0 20px #FFD70066;
+    z-index: 5;
+  }
+
+  /* Status bar */
+  .status-bar {
+    background: var(--panel);
+    border: 1px solid var(--gold-dark);
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 560px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold);
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 560px;
+  }
+  .action-buttons .btn {
+    flex: 1;
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  /* Score bar */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-size: 13px;
+    color: var(--gold-dark);
+  }
+  .score-num {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--gold);
+  }
+
+  /* WIN MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #00000088;
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: linear-gradient(135deg, var(--panel), #3d1e08);
+    border: 2px solid var(--gold);
+    border-radius: 20px;
+    padding: 40px 30px;
+    text-align: center;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 20px 60px #000000cc, var(--glow);
+    animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.5) translateY(50px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .modal-icon { font-size: 60px; margin-bottom: 15px; }
+  .modal h2 { font-size: 24px; color: var(--gold); margin-bottom: 10px; text-shadow: var(--glow); }
+  .modal p { color: var(--text); font-size: 15px; margin-bottom: 25px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--panel);
+    border: 1px solid var(--gold-dark);
+    border-radius: 10px;
+    padding: 12px 20px;
+    color: var(--text);
+    font-size: 14px;
+    z-index: 200;
+    transform: translateX(200%);
+    transition: transform 0.3s;
+    max-width: 280px;
+  }
+  .toast.show { transform: translateX(0); }
+
+  /* Move history */
+  .move-log {
+    width: 100%;
+    max-width: 560px;
+    background: var(--panel);
+    border: 1px solid var(--gold-dark);
+    border-radius: 10px;
+    padding: 10px 14px;
+    max-height: 80px;
+    overflow-y: auto;
+    font-size: 12px;
+    color: var(--gold-dark);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-content: flex-start;
+  }
+  .move-log span { 
+    background: #1a0a00;
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: var(--gold-dark);
+  }
+  .move-log span.blue-move { border-left: 2px solid #4466cc; }
+  .move-log span.yellow-move { border-left: 2px solid #FFD700; }
+
+  /* Responsive */
+  @media (max-width: 500px) {
+    .board-frame { padding: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="myanmar-title">ကျားကွက်</div>
+  <h1>KYAR KWAT</h1>
+  <div class="subtitle">Myanmar Traditional Checkers · Online Multiplayer</div>
+</div>
+
+<div class="app">
+
+<!-- LOBBY -->
+<div id="lobby">
+  <div class="lobby-card">
+    <h2>🎮 ကစားနည်းရွေးချယ်ပါ</h2>
+    
+    <div class="input-group">
+      <label>သင်၏နာမည်</label>
+      <input type="text" id="player-name" placeholder="နာမည်ထည့်ပါ..." maxlength="20" value="">
+    </div>
+
+    <button class="btn btn-gold" onclick="createRoom()">🏠 Room အသစ်ဖန်တီးပါ</button>
+    
+    <div class="divider">သို့မဟုတ်</div>
+
+    <div class="input-group">
+      <label>Room Code ဖြင့်ဝင်ရောက်ပါ</label>
+      <input type="text" id="room-code-input" placeholder="Room code ထည့်ပါ..." maxlength="6" style="text-transform:uppercase;letter-spacing:4px;text-align:center">
+    </div>
+    <button class="btn btn-outline" onclick="joinRoom()">🚪 Room ဝင်ရောက်ပါ</button>
+
+    <div class="divider">သို့မဟုတ်</div>
+    <button class="btn btn-outline" onclick="playVsAI()">🤖 AI နှင့်ကစားပါ</button>
+  </div>
+
+  <div class="lobby-card" id="waiting-panel" style="display:none;">
+    <h2>⏳ သူငယ်ချင်းကိုစောင့်ဆိုင်းနေသည်</h2>
+    <div class="room-code-display">
+      <div class="code" id="room-code-show">------</div>
+      <div class="code-label">Room Code · သူငယ်ချင်းကိုပေးပါ</div>
+    </div>
+    <div class="waiting-spinner">
+      <div class="spinner"></div>
+      <span>Player 2 ကိုစောင့်ဆိုင်းနေသည်...</span>
+    </div>
+    <button class="btn btn-red" onclick="cancelWaiting()">❌ ပယ်ဖျက်ပါ</button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <div class="game-layout">
+
+    <!-- Score -->
+    <div class="score-bar">
+      <span id="p1-name-score">Player 1</span>
+      <span class="score-num" id="score-p1">0</span>
+      <span>-</span>
+      <span class="score-num" id="score-p2">0</span>
+      <span id="p2-name-score">Player 2</span>
+    </div>
+
+    <!-- Players bar -->
+    <div class="players-bar">
+      <div class="player-card" id="p1-card">
+        <span class="player-piece piece-yellow"></span>
+        <span class="player-name" id="p1-display">Player 1</span>
+        <div class="player-count" id="p1-piece-count">ကျာများ: 12</div>
+      </div>
+      <div style="text-align:center">
+        <div class="vs-badge">VS</div>
+        <div class="timer" id="game-timer">30</div>
+      </div>
+      <div class="player-card" id="p2-card">
+        <span class="player-piece piece-blue"></span>
+        <span class="player-name" id="p2-display">Player 2</span>
+        <div class="player-count" id="p2-piece-count">ကျာများ: 12</div>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="status-bar" id="status-bar">ကစားနေဆဲ...</div>
+
+    <!-- Board -->
+    <div class="board-container">
+      <div class="board-frame">
+        <div id="board"></div>
+      </div>
+    </div>
+
+    <!-- Move log -->
+    <div class="move-log" id="move-log"></div>
+
+    <!-- Action buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-outline" onclick="goToLobby()">🏠 ထွက်ပါ</button>
+      <button class="btn btn-outline" onclick="resetGame()">🔄 ပြန်စပါ</button>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<!-- Win Modal -->
+<div class="modal-overlay" id="win-modal">
+  <div class="modal">
+    <div class="modal-icon" id="win-icon">🏆</div>
+    <h2 id="win-title">နိုင်သည်!</h2>
+    <p id="win-msg">ဂုဏ်ယူပါသည်!</p>
+    <button class="btn btn-gold" onclick="closeWinModal()">🎮 ထပ်ကစားပါ</button>
+    <button class="btn btn-outline" style="margin-top:10px" onclick="goToLobby()">🏠 ထွက်ပါ</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, update, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+
+// ============================================================
+// FIREBASE CONFIG - Replace with your config
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyC-LM-rRPfgxIlYH9fpuZwUkSCCOPidg5g",
+  authDomain: "kyarkwat-57298.firebaseapp.com",
+  databaseURL: "https://kyarkwat-57298-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kyarkwat-57298",
+  storageBucket: "kyarkwat-57298.firebasestorage.app",
+  messagingSenderId: "143473069573",
+  appId: "1:143473069573:web:127d6c9320195f10afd66c",
+  measurementId: "G-J0XHCRTFJ1"
+};
+// ============================================================
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getDatabase(app);
+window.db = db;
+window.dbRef = ref;
+window.dbSet = set;
+window.dbGet = get;
+window.dbOnValue = onValue;
+window.dbUpdate = update;
+window.dbRemove = remove;
+window.dbTimestamp = serverTimestamp;
+
+console.log("Firebase connected!");
+</script>
+
+<script>
+// ============================================================
+// MYANMAR CHECKERS GAME LOGIC
+// ============================================================
+
+// Constants
+const EMPTY = 0;
+const YELLOW = 1;    // Player 1 (ကျာ - bottom, moves up)
+const BLUE = 2;      // Player 2 (ကျာ - top, moves down)  
+const YELLOW_KING = 3;
+const BLUE_KING = 4;
+const BOARD_SIZE = 8;
+const TURN_TIME = 60; // seconds
+
+// Game State
+let gameState = {
+  board: [],
+  currentTurn: YELLOW,
+  selectedCell: null,
+  validMoves: [],
+  yellowPieces: 12,
+  bluePieces: 12,
+  mustCapture: null, // for multi-jump
+  gameOver: false,
+  moveHistory: []
+};
+
+let roomId = null;
+let myColor = null; // YELLOW or BLUE
+let isAI = false;
+let isMyTurn = false;
+let timerInterval = null;
+let timeLeft = TURN_TIME;
+let scores = { yellow: 0, blue: 0 };
+let player1Name = "ကစားသမား ၁";
+let player2Name = "ကစားသမား ၂";
+let dbListener = null;
+
+// ============================================================
+// BOARD INITIALIZATION
+// ============================================================
+function initBoard() {
+  let board = [];
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    board.push([]);
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      board[r].push(EMPTY);
+    }
+  }
+
+  // Place pieces - standard checkers setup
+  // Blue pieces on top (rows 0-2), on dark squares
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      if ((r + c) % 2 === 1) {
+        board[r][c] = BLUE;
+      }
+    }
+  }
+  // Yellow pieces on bottom (rows 5-7), on dark squares
+  for (let r = 5; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      if ((r + c) % 2 === 1) {
+        board[r][c] = YELLOW;
+      }
+    }
+  }
+  return board;
+}
+
+// ============================================================
+// VALID MOVES CALCULATION
+// ============================================================
+function getCaptureMoves(board, r, c) {
+  const piece = board[r][c];
+  const captures = [];
+  const isKing = piece === YELLOW_KING || piece === BLUE_KING;
+  const isYellow = piece === YELLOW || piece === YELLOW_KING;
+  
+  // Directions: yellow moves up (-1), blue moves down (+1), kings both
+  let dirs = [];
+  if (isYellow || isKing) dirs.push([-1, -1], [-1, 1]);
+  if (!isYellow || isKing) dirs.push([1, -1], [1, 1]);
+
+  const enemies = isYellow ? [BLUE, BLUE_KING] : [YELLOW, YELLOW_KING];
+
+  for (const [dr, dc] of dirs) {
+    const mr = r + dr, mc = c + dc;  // middle (enemy)
+    const lr = r + dr*2, lc = c + dc*2; // landing
+    if (inBounds(mr, mc) && inBounds(lr, lc)) {
+      if (enemies.includes(board[mr][mc]) && board[lr][lc] === EMPTY) {
+        captures.push({ from: [r, c], to: [lr, lc], capture: [mr, mc] });
+      }
+    }
+  }
+  return captures;
+}
+
+function getRegularMoves(board, r, c) {
+  const piece = board[r][c];
+  const moves = [];
+  const isKing = piece === YELLOW_KING || piece === BLUE_KING;
+  const isYellow = piece === YELLOW || piece === YELLOW_KING;
+
+  let dirs = [];
+  if (isYellow || isKing) dirs.push([-1, -1], [-1, 1]);
+  if (!isYellow || isKing) dirs.push([1, -1], [1, 1]);
+
+  for (const [dr, dc] of dirs) {
+    const nr = r + dr, nc = c + dc;
+    if (inBounds(nr, nc) && board[nr][nc] === EMPTY) {
+      moves.push({ from: [r, c], to: [nr, nc], capture: null });
+    }
+  }
+  return moves;
+}
+
+function getAllMovesForColor(board, color) {
+  const pieces = color === YELLOW ? [YELLOW, YELLOW_KING] : [BLUE, BLUE_KING];
+  let allCaptures = [];
+  let allMoves = [];
+
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      if (pieces.includes(board[r][c])) {
+        allCaptures.push(...getCaptureMoves(board, r, c));
+        allMoves.push(...getRegularMoves(board, r, c));
+      }
+    }
+  }
+  // Mandatory capture rule (ကျားကွက် rule: must capture if possible)
+  return allCaptures.length > 0 ? allCaptures : allMoves;
+}
+
+function getMovesForPiece(board, r, c, mustCapture) {
+  if (mustCapture) {
+    const caps = getCaptureMoves(board, r, c);
+    return caps;
+  }
+  const allMoves = getAllMovesForColor(board, board[r][c] <= 2 ? board[r][c] : (board[r][c] === YELLOW_KING ? YELLOW : BLUE));
+  const hasMandatoryCapture = allMoves.some(m => m.capture !== null);
+  if (hasMandatoryCapture) {
+    return getCaptureMoves(board, r, c);
+  }
+  return [...getCaptureMoves(board, r, c), ...getRegularMoves(board, r, c)];
+}
+
+function inBounds(r, c) {
+  return r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE;
+}
+
+function applyMove(board, move) {
+  let newBoard = board.map(row => [...row]);
+  const [fr, fc] = move.from;
+  const [tr, tc] = move.to;
+  const piece = newBoard[fr][fc];
+
+  newBoard[tr][tc] = piece;
+  newBoard[fr][fc] = EMPTY;
+
+  if (move.capture) {
+    const [cr, cc] = move.capture;
+    newBoard[cr][cc] = EMPTY;
+  }
+
+  // King promotion
+  if (piece === YELLOW && tr === 0) newBoard[tr][tc] = YELLOW_KING;
+  if (piece === BLUE && tr === BOARD_SIZE - 1) newBoard[tr][tc] = BLUE_KING;
+
+  return newBoard;
+}
+
+function countPieces(board) {
+  let yellow = 0, blue = 0;
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      if (board[r][c] === YELLOW || board[r][c] === YELLOW_KING) yellow++;
+      else if (board[r][c] === BLUE || board[r][c] === BLUE_KING) blue++;
+    }
+  }
+  return { yellow, blue };
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+function renderBoard() {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+
+  const isFlipped = myColor === BLUE && !isAI;
+
+  for (let ri = 0; ri < BOARD_SIZE; ri++) {
+    for (let ci = 0; ci < BOARD_SIZE; ci++) {
+      const r = isFlipped ? (BOARD_SIZE - 1 - ri) : ri;
+      const c = isFlipped ? (BOARD_SIZE - 1 - ci) : ci;
+
+      const cell = document.createElement('div');
+      cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+
+      // Highlight selected
+      if (gameState.selectedCell && gameState.selectedCell[0] === r && gameState.selectedCell[1] === c) {
+        cell.classList.add('selected');
+      }
+
+      // Valid moves
+      const isValidDest = gameState.validMoves.some(m => m.to[0] === r && m.to[1] === c);
+      if (isValidDest && (r + c) % 2 === 1) {
+        cell.classList.add('valid-move');
+        cell.onclick = () => handleCellClick(r, c);
+      }
+
+      // Piece
+      const piece = gameState.board[r][c];
+      if (piece !== EMPTY) {
+        const pieceEl = document.createElement('div');
+        pieceEl.className = 'piece';
+        if (piece === YELLOW || piece === YELLOW_KING) pieceEl.classList.add('yellow-piece');
+        else pieceEl.classList.add('blue-piece');
+        if (piece === YELLOW_KING || piece === BLUE_KING) pieceEl.classList.add('king');
+
+        if (gameState.selectedCell && gameState.selectedCell[0] === r && gameState.selectedCell[1] === c) {
+          pieceEl.classList.add('selected-piece');
+        }
+
+        pieceEl.onclick = () => handlePieceClick(r, c);
+        cell.appendChild(pieceEl);
+      } else if ((r + c) % 2 === 1 && !isValidDest) {
+        cell.onclick = () => handleCellClick(r, c);
+      }
+
+      boardEl.appendChild(cell);
+    }
+  }
+
+  // Update counts
+  const counts = countPieces(gameState.board);
+  document.getElementById('p1-piece-count').textContent = `ကျာများ: ${counts.yellow}`;
+  document.getElementById('p2-piece-count').textContent = `ကျာများ: ${counts.blue}`;
+  gameState.yellowPieces = counts.yellow;
+  gameState.bluePieces = counts.blue;
+
+  // Update active player
+  document.getElementById('p1-card').classList.toggle('active', gameState.currentTurn === YELLOW);
+  document.getElementById('p2-card').classList.toggle('active', gameState.currentTurn === BLUE);
+}
+
+function updateStatus(msg) {
+  document.getElementById('status-bar').textContent = msg;
+}
+
+// ============================================================
+// MOVE HANDLING
+// ============================================================
+function handlePieceClick(r, c) {
+  if (gameState.gameOver) return;
+  if (!isMyTurn && !isAI) return;
+  
+  const piece = gameState.board[r][c];
+  const myPieces = myColor === YELLOW ? [YELLOW, YELLOW_KING] : [BLUE, BLUE_KING];
+  
+  // If we must continue a multi-jump
+  if (gameState.mustCapture) {
+    if (r === gameState.mustCapture[0] && c === gameState.mustCapture[1]) {
+      selectPiece(r, c);
+    }
+    return;
+  }
+
+  if (!isAI && !myPieces.includes(piece)) return;
+  if (isAI && gameState.currentTurn !== YELLOW) return;
+  if (isAI && ![ YELLOW, YELLOW_KING].includes(piece)) return;
+
+  selectPiece(r, c);
+}
+
+function selectPiece(r, c) {
+  const moves = getMovesForPiece(gameState.board, r, c, 
+    gameState.mustCapture ? [r, c] : null);
+  
+  if (moves.length === 0) {
+    // Check if there are mandatory captures elsewhere
+    const allMoves = getAllMovesForColor(gameState.board, gameState.currentTurn);
+    const hasCaps = allMoves.some(m => m.capture !== null);
+    if (hasCaps) {
+      showToast('⚠️ ဖမ်းနိုင်သောကျာရှိသည်! ဖမ်းရမည်!');
+    }
+    return;
+  }
+
+  gameState.selectedCell = [r, c];
+  gameState.validMoves = moves;
+  renderBoard();
+}
+
+function handleCellClick(r, c) {
+  if (!gameState.selectedCell) return;
+  if (gameState.gameOver) return;
+
+  const move = gameState.validMoves.find(m => m.to[0] === r && m.to[1] === c);
+  if (!move) {
+    // Deselect
+    gameState.selectedCell = null;
+    gameState.validMoves = [];
+    renderBoard();
+    return;
+  }
+
+  executeMove(move);
+}
+
+function executeMove(move) {
+  const newBoard = applyMove(gameState.board, move);
+  const wasCapture = move.capture !== null;
+  
+  // Check for multi-jump
+  let multiJump = null;
+  if (wasCapture) {
+    const [tr, tc] = move.to;
+    const futureCaps = getCaptureMoves(newBoard, tr, tc);
+    // Only continue if piece wasn't just promoted
+    const promoted = (gameState.board[move.from[0]][move.from[1]] === YELLOW && tr === 0) ||
+                     (gameState.board[move.from[0]][move.from[1]] === BLUE && tr === BOARD_SIZE - 1);
+    if (futureCaps.length > 0 && !promoted) {
+      multiJump = [tr, tc];
+    }
+  }
+
+  // Log move
+  const colLetters = 'ABCDEFGH';
+  const fromStr = colLetters[move.from[1]] + (BOARD_SIZE - move.from[0]);
+  const toStr = colLetters[move.to[1]] + (BOARD_SIZE - move.to[0]);
+  const logEntry = { 
+    text: `${fromStr}→${toStr}${wasCapture ? '✕' : ''}`,
+    color: gameState.currentTurn === YELLOW ? 'yellow' : 'blue'
+  };
+
+  gameState.board = newBoard;
+  gameState.moveHistory.push(logEntry);
+  updateMoveLog();
+
+  if (multiJump) {
+    gameState.mustCapture = multiJump;
+    gameState.selectedCell = multiJump;
+    gameState.validMoves = getCaptureMoves(newBoard, multiJump[0], multiJump[1]);
+    renderBoard();
+    updateStatus(`🔥 ဆက်ဖမ်းနိုင်သည်! ဆက်ကစားပါ`);
+    
+    // If multiplayer, update board state but keep turn
+    if (roomId) {
+      pushBoardToFirebase(true);
+    }
+  } else {
+    gameState.mustCapture = null;
+    gameState.selectedCell = null;
+    gameState.validMoves = [];
+    
+    // Switch turn
+    const nextTurn = gameState.currentTurn === YELLOW ? BLUE : YELLOW;
+    gameState.currentTurn = nextTurn;
+
+    // Check win
+    const { yellow, blue } = countPieces(newBoard);
+    if (yellow === 0) {
+      endGame(BLUE);
+      return;
+    }
+    if (blue === 0) {
+      endGame(YELLOW);
+      return;
+    }
+    // Check no moves
+    const nextMoves = getAllMovesForColor(newBoard, nextTurn);
+    if (nextMoves.length === 0) {
+      endGame(nextTurn === YELLOW ? BLUE : YELLOW);
+      return;
+    }
+
+    renderBoard();
+    updateTurnStatus();
+    resetTimer();
+
+    if (roomId) {
+      pushBoardToFirebase(false);
+    } else if (isAI && gameState.currentTurn === BLUE) {
+      setTimeout(doAIMove, 700);
+    }
+  }
+}
+
+function updateTurnStatus() {
+  if (isAI) {
+    updateStatus(gameState.currentTurn === YELLOW ? '🟡 သင့်အလှည့်' : '🔵 AI စဉ်းစားနေသည်...');
+  } else if (roomId) {
+    isMyTurn = gameState.currentTurn === myColor;
+    const yourTurn = isMyTurn;
+    updateStatus(yourTurn ? '🎯 သင့်အလှည့် - ကျာကိုနှိပ်ပါ' : '⏳ ဆန့်ကျင်ဘက်၏အလှည့်');
+  } else {
+    const name = gameState.currentTurn === YELLOW ? player1Name : player2Name;
+    updateStatus(`🎮 ${name} ၏အလှည့်`);
+  }
+}
+
+function updateMoveLog() {
+  const log = document.getElementById('move-log');
+  log.innerHTML = '';
+  const recent = gameState.moveHistory.slice(-20);
+  recent.forEach(entry => {
+    const span = document.createElement('span');
+    span.className = entry.color + '-move';
+    span.textContent = entry.text;
+    log.appendChild(span);
+  });
+  log.scrollTop = log.scrollHeight;
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function resetTimer() {
+  clearInterval(timerInterval);
+  timeLeft = TURN_TIME;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      // Auto-forfeit turn
+      if (!isAI || gameState.currentTurn === YELLOW) {
+        showToast('⏰ အချိန်ကုန်သည်! လွှဲပြောင်းသည်');
+        // Force switch turn
+        gameState.selectedCell = null;
+        gameState.validMoves = [];
+        gameState.mustCapture = null;
+        gameState.currentTurn = gameState.currentTurn === YELLOW ? BLUE : YELLOW;
+        renderBoard();
+        updateTurnStatus();
+        resetTimer();
+        if (isAI && gameState.currentTurn === BLUE) setTimeout(doAIMove, 700);
+        if (roomId) pushBoardToFirebase(false);
+      }
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('game-timer');
+  el.textContent = timeLeft;
+  el.classList.toggle('urgent', timeLeft <= 10);
+}
+
+// ============================================================
+// AI LOGIC (Minimax)
+// ============================================================
+function doAIMove() {
+  if (gameState.gameOver || gameState.currentTurn !== BLUE) return;
+  const move = getBestMove(gameState.board, BLUE, 4);
+  if (move) {
+    gameState.selectedCell = move.from;
+    renderBoard();
+    setTimeout(() => executeMove(move), 400);
+  }
+}
+
+function getBestMove(board, color, depth) {
+  const moves = getAllMovesForColor(board, color);
+  if (moves.length === 0) return null;
+  
+  let bestMove = null;
+  let bestScore = -Infinity;
+  
+  for (const move of moves) {
+    const newBoard = applyMove(board, move);
+    const score = minimax(newBoard, depth - 1, -Infinity, Infinity, false, color);
+    if (score > bestScore) {
+      bestScore = score;
+      bestMove = move;
+    }
+  }
+  return bestMove;
+}
+
+function minimax(board, depth, alpha, beta, isMax, aiColor) {
+  const oppColor = aiColor === BLUE ? YELLOW : BLUE;
+  const { yellow, blue } = countPieces(board);
+  
+  if (blue === 0) return -1000;
+  if (yellow === 0) return 1000;
+  if (depth === 0) return evaluateBoard(board, aiColor);
+  
+  const color = isMax ? aiColor : oppColor;
+  const moves = getAllMovesForColor(board, color);
+  
+  if (moves.length === 0) return isMax ? -1000 : 1000;
+  
+  if (isMax) {
+    let maxScore = -Infinity;
+    for (const move of moves) {
+      const newBoard = applyMove(board, move);
+      maxScore = Math.max(maxScore, minimax(newBoard, depth-1, alpha, beta, false, aiColor));
+      alpha = Math.max(alpha, maxScore);
+      if (beta <= alpha) break;
+    }
+    return maxScore;
+  } else {
+    let minScore = Infinity;
+    for (const move of moves) {
+      const newBoard = applyMove(board, move);
+      minScore = Math.min(minScore, minimax(newBoard, depth-1, alpha, beta, true, aiColor));
+      beta = Math.min(beta, minScore);
+      if (beta <= alpha) break;
+    }
+    return minScore;
+  }
+}
+
+function evaluateBoard(board, aiColor) {
+  let score = 0;
+  const isAIBlue = aiColor === BLUE;
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      const p = board[r][c];
+      if (p === EMPTY) continue;
+      const isBlue = p === BLUE || p === BLUE_KING;
+      const isKing = p === YELLOW_KING || p === BLUE_KING;
+      const val = isKing ? 3 : 1;
+      if (isBlue === isAIBlue) {
+        score += val;
+        // Positional bonus
+        if (!isKing) {
+          score += isBlue ? (r * 0.1) : ((7-r) * 0.1);
+        }
+        // Center bonus
+        score += (Math.abs(c-3.5) < 1.5) ? 0.15 : 0;
+      } else {
+        score -= val;
+      }
+    }
+  }
+  return score;
+}
+
+// ============================================================
+// END GAME
+// ============================================================
+function endGame(winner) {
+  gameState.gameOver = true;
+  clearInterval(timerInterval);
+  
+  const isYellowWin = winner === YELLOW;
+  const winnerName = isYellowWin ? player1Name : player2Name;
+
+  if (isYellowWin) scores.yellow++;
+  else scores.blue++;
+  
+  document.getElementById('score-p1').textContent = scores.yellow;
+  document.getElementById('score-p2').textContent = scores.blue;
+
+  document.getElementById('win-icon').textContent = isYellowWin ? '🟡' : '🔵';
+  document.getElementById('win-title').textContent = `${winnerName} နိုင်သည်!`;
+  document.getElementById('win-msg').textContent = isAI 
+    ? (isYellowWin ? '🎉 ဂုဏ်ယူပါသည်! AI ကိုနိုင်သည်!' : '💪 စိတ်မပျက်ပါနှင့်! ထပ်ကြိုးစားပါ!')
+    : '🏆 ကောင်းသောကစားမှု!';
+
+  document.getElementById('win-modal').classList.add('show');
+  renderBoard();
+}
+
+// ============================================================
+// FIREBASE MULTIPLAYER
+// ============================================================
+function generateRoomCode() {
+  return Math.random().toString(36).substr(2, 6).toUpperCase();
+}
+
+window.createRoom = function() {
+  const name = document.getElementById('player-name').value.trim() || 'ကစားသမား ၁';
+  player1Name = name;
+  const code = generateRoomCode();
+  roomId = code;
+  myColor = YELLOW;
+
+  const roomData = {
+    player1: name,
+    player2: null,
+    board: initBoard(),
+    currentTurn: YELLOW,
+    status: 'waiting',
+    created: Date.now()
+  };
+
+  try {
+    const roomRef = window.dbRef(window.db, `rooms/${code}`);
+    window.dbSet(roomRef, roomData);
+    
+    document.getElementById('room-code-show').textContent = code;
+    document.getElementById('waiting-panel').style.display = 'block';
+
+    // Listen for player 2
+    window.dbOnValue(roomRef, (snap) => {
+      const data = snap.val();
+      if (data && data.player2) {
+        player2Name = data.player2;
+        startMultiplayerGame();
+        listenForMoves(code);
+      }
+    });
+    showToast(`🏠 Room ${code} ဖန်တီးပြီး`);
+  } catch(e) {
+    showToast('⚠️ Firebase ချိတ်ဆက်မှုစစ်ဆေးပါ');
+    // Fallback: local multiplayer
+    startLocalGame(name, 'ကစားသမား ၂');
+  }
+}
+
+window.joinRoom = function() {
+  const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+  const name = document.getElementById('player-name').value.trim() || 'ကစားသမား ၂';
+  if (!code || code.length < 4) { showToast('⚠️ Room code ထည့်ပါ'); return; }
+  
+  player2Name = name;
+  roomId = code;
+  myColor = BLUE;
+
+  try {
+    const roomRef = window.dbRef(window.db, `rooms/${code}`);
+    window.dbGet(roomRef).then((snap) => {
+      const data = snap.val();
+      if (!data) { showToast('❌ Room မတွေ့ပါ'); return; }
+      if (data.player2) { showToast('❌ Room ပြည့်နေသည်'); return; }
+      
+      player1Name = data.player1;
+      window.dbUpdate(roomRef, { player2: name, status: 'playing' });
+      
+      startMultiplayerGame();
+      listenForMoves(code);
+      showToast(`✅ Room ${code} ဝင်ရောက်ပြီး`);
+    });
+  } catch(e) {
+    showToast('⚠️ Firebase ချိတ်ဆက်မှုစစ်ဆေးပါ');
+  }
+}
+
+function listenForMoves(code) {
+  const boardRef = window.dbRef(window.db, `rooms/${code}/gameState`);
+  dbListener = window.dbOnValue(boardRef, (snap) => {
+    const data = snap.val();
+    if (!data) return;
+    
+    // Only update if it's the opponent's move
+    const incomingTurn = data.currentTurn;
+    if (incomingTurn === myColor) {
+      // Opponent just moved, now it's my turn
+      gameState.board = data.board;
+      gameState.currentTurn = data.currentTurn;
+      gameState.mustCapture = data.mustCapture || null;
+      isMyTurn = true;
+      renderBoard();
+      updateTurnStatus();
+      resetTimer();
+      
+      const { yellow, blue } = countPieces(gameState.board);
+      if (yellow === 0) endGame(BLUE);
+      else if (blue === 0) endGame(YELLOW);
+    }
+  });
+}
+
+function pushBoardToFirebase(continuingCapture) {
+  if (!roomId) return;
+  const stateRef = window.dbRef(window.db, `rooms/${roomId}/gameState`);
+  window.dbSet(stateRef, {
+    board: gameState.board,
+    currentTurn: gameState.currentTurn,
+    mustCapture: gameState.mustCapture || null,
+    updatedAt: Date.now()
+  });
+  if (!continuingCapture) isMyTurn = false;
+}
+
+function startMultiplayerGame() {
+  document.getElementById('waiting-panel').style.display = 'none';
+  isAI = false;
+  isMyTurn = myColor === YELLOW;
+  gameState.board = initBoard();
+  gameState.currentTurn = YELLOW;
+  gameState.selectedCell = null;
+  gameState.validMoves = [];
+  gameState.mustCapture = null;
+  gameState.gameOver = false;
+  gameState.moveHistory = [];
+  showGameScreen();
+}
+
+// ============================================================
+// LOCAL GAME
+// ============================================================
+window.playVsAI = function() {
+  const name = document.getElementById('player-name').value.trim() || 'ကစားသမား ၁';
+  player1Name = name;
+  player2Name = '🤖 AI';
+  isAI = true;
+  myColor = YELLOW;
+  isMyTurn = true;
+  roomId = null;
+  startFreshGame();
+  showGameScreen();
+}
+
+function startLocalGame(p1, p2) {
+  player1Name = p1;
+  player2Name = p2;
+  isAI = false;
+  myColor = YELLOW;
+  isMyTurn = true;
+  roomId = null;
+  startFreshGame();
+  showGameScreen();
+}
+
+function startFreshGame() {
+  gameState.board = initBoard();
+  gameState.currentTurn = YELLOW;
+  gameState.selectedCell = null;
+  gameState.validMoves = [];
+  gameState.mustCapture = null;
+  gameState.gameOver = false;
+  gameState.moveHistory = [];
+}
+
+function showGameScreen() {
+  document.getElementById('lobby').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  document.getElementById('p1-display').textContent = player1Name;
+  document.getElementById('p2-display').textContent = player2Name;
+  document.getElementById('p1-name-score').textContent = player1Name;
+  document.getElementById('p2-name-score').textContent = player2Name;
+  updateTurnStatus();
+  renderBoard();
+  resetTimer();
+}
+
+// ============================================================
+// CONTROLS
+// ============================================================
+window.cancelWaiting = function() {
+  if (roomId) {
+    try { window.dbRemove(window.dbRef(window.db, `rooms/${roomId}`)); } catch(e) {}
+  }
+  roomId = null;
+  document.getElementById('waiting-panel').style.display = 'none';
+}
+
+window.resetGame = function() {
+  clearInterval(timerInterval);
+  startFreshGame();
+  if (myColor === BLUE) myColor = BLUE; // keep color
+  isMyTurn = myColor === YELLOW || isAI;
+  updateTurnStatus();
+  renderBoard();
+  resetTimer();
+  document.getElementById('win-modal').classList.remove('show');
+  if (isAI && gameState.currentTurn === BLUE) setTimeout(doAIMove, 700);
+}
+
+window.goToLobby = function() {
+  clearInterval(timerInterval);
+  if (roomId && dbListener) {
+    try { window.dbRemove(window.dbRef(window.db, `rooms/${roomId}`)); } catch(e) {}
+  }
+  roomId = null;
+  dbListener = null;
+  gameState.gameOver = false;
+  document.getElementById('win-modal').classList.remove('show');
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('lobby').style.display = 'flex';
+  document.getElementById('waiting-panel').style.display = 'none';
+}
+
+window.closeWinModal = function() {
+  document.getElementById('win-modal').classList.remove('show');
+  resetGame();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('room-code-input').addEventListener('input', e => {
+    e.target.value = e.target.value.toUpperCase();
+  });
+  
+  // Default player name
+  document.getElementById('player-name').placeholder = 'နာမည်ထည့်ပါ...';
+});
+
+// Prevent context menu on board
+document.addEventListener('contextmenu', e => {
+  if (e.target.closest('#board')) e.preventDefault();
+});
+</script>
+</body>
+</html>
