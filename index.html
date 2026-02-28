@@ -2,1613 +2,2181 @@
 <html lang="my">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>ကျားကွက် · Myanmar Traditional Checkers</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ကျားကွက် · Myanmar Traditional Draughts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
-/* ════════════════════════════════════
-   VARIABLES
-════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   MYANMAR ROYAL LACQUERWARE DESIGN SYSTEM
+   Inspired by: Bagan temple gold, Mandalay palace,
+   Myanmar lacquerware (Yun) craftsmanship
+═══════════════════════════════════════════════════ */
 :root {
-  --gold:      #FFD700;
-  --gold-dk:   #B8860B;
-  --gold-lt:   #FFF5C0;
-  --red:       #CC2200;
-  --red-dk:    #8B0000;
-  --bg:        #130800;
-  --panel:     #1e0d04;
-  --panel2:    #2a1208;
-  --border:    #5a3010;
-  --txt:       #FFE4A0;
-  --txt-dim:   #a07040;
-  --cell-lt:   #C8A96A;
-  --cell-dk:   #6B4400;
-  --cell-sel:  #A06000;
-  --cell-vm:   #1a6a28;
-  --grn:       #22dd44;
-}
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html,body { height:100%; overflow:hidden; }
-body {
-  background: var(--bg);
-  font-family: 'Noto Sans Myanmar', sans-serif;
-  color: var(--txt);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  /* Core palette - Bagan lacquerware */
+  --void:        #050304;
+  --abyss:       #080507;
+  --lacquer:     #0f0b0d;
+  --lacquer2:    #160d10;
+  --lacquer3:    #1e1116;
+  --surface:     rgba(255,220,100,0.035);
+  --surface2:    rgba(255,220,100,0.06);
+
+  /* Gold system - Shwedagon inspired */
+  --gold-deep:   #7a4f0a;
+  --gold-mid:    #c08020;
+  --gold:        #d4962a;
+  --gold-bright: #f0b93a;
+  --gold-shine:  #ffd966;
+  --gold-white:  #fff3c0;
+
+  /* Crimson - Myanmar royal red */
+  --ruby:        #8b1a1a;
+  --ruby2:       #b52222;
+  --ruby3:       #d63031;
+  --ruby-glow:   rgba(214,48,49,0.4);
+
+  /* Jade - Myanmar precious stone */
+  --jade:        #1a5e3a;
+  --jade2:       #22804e;
+  --jade3:       #2ecc71;
+  --jade-glow:   rgba(46,204,113,0.35);
+
+  /* Text */
+  --ivory:       #f8f0d8;
+  --ivory2:      rgba(248,240,216,0.7);
+  --ivory3:      rgba(248,240,216,0.35);
+  --ivory4:      rgba(248,240,216,0.12);
+
+  /* Board squares */
+  --sq-dark:     #0a0608;
+  --sq-light:    #130b10;
+  --sq-border:   rgba(212,150,42,0.15);
+
+  /* Borders */
+  --border-gold: rgba(212,150,42,0.2);
+  --border-gold2:rgba(212,150,42,0.08);
+
+  /* Glow */
+  --glow-gold:   rgba(212,150,42,0.3);
+  --glow-gold2:  rgba(240,185,58,0.15);
 }
 
-/* ════════════════════════════════════
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; overflow:hidden; }
+
+body {
+  background: var(--void);
+  color: var(--ivory);
+  font-family: 'Noto Sans Myanmar', 'JetBrains Mono', sans-serif;
+  position: relative;
+}
+
+/* ─── GLOBAL AMBIENT ─────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 100% 60% at 10% 5%,  rgba(212,150,42,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 70%  100% at 90% 95%, rgba(139,26,26,0.07)  0%, transparent 50%),
+    radial-gradient(ellipse 80%  80%  at 50% 50%, rgba(26,94,58,0.04)   0%, transparent 60%);
+}
+
+/* Myanmar traditional pattern overlay - diagonal diamonds */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: 0.018;
+  background-image:
+    repeating-conic-gradient(var(--gold) 0% 25%, transparent 0% 50%);
+  background-size: 20px 20px;
+  background-position: 0 0;
+}
+
+/* ═══════════════════════════════════════════════
    SCREENS
-════════════════════════════════════ */
-.screen { display:none; flex-direction:column; height:100%; overflow:hidden; }
+═══════════════════════════════════════════════ */
+.screen { display:none; position:fixed; inset:0; z-index:10; }
 .screen.active { display:flex; }
 
-/* ════════════════════════════════════
-   HEADER
-════════════════════════════════════ */
-.app-header {
-  text-align: center;
-  padding: 12px 10px 8px;
-  background: linear-gradient(180deg, #1e0800, transparent);
-  flex-shrink: 0;
+/* ═══════════════════════════════════════════════
+   ░░░  LOBBY SCREEN  ░░░
+═══════════════════════════════════════════════ */
+#lobby {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 20px;
+  overflow-y: auto;
 }
-.app-header .my-title {
-  font-size: clamp(22px, 6vw, 36px);
+
+/* Mandala background rings */
+.mandala-rings {
+  position: fixed; inset: 0; z-index: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.mandala-rings svg {
+  width: min(900px, 95vw);
+  height: min(900px, 95vw);
+  opacity: 0.07;
+  animation: rotateMandala 60s linear infinite;
+}
+@keyframes rotateMandala { to { transform: rotate(360deg); } }
+
+/* Lobby hero */
+.lobby-hero {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+  animation: heroReveal 1.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes heroReveal {
+  from { opacity:0; transform:translateY(-30px) scale(0.92); }
+  to   { opacity:1; transform:none; }
+}
+
+.lobby-emblem {
+  position: relative;
+  width: 96px; height: 96px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.lobby-emblem-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(212,150,42,0.4);
+  animation: emblemPulse 3s ease-in-out infinite;
+}
+.lobby-emblem-ring:nth-child(2) {
+  inset: -8px;
+  border-color: rgba(212,150,42,0.2);
+  animation-delay: 0.5s;
+}
+.lobby-emblem-ring:nth-child(3) {
+  inset: -18px;
+  border-color: rgba(212,150,42,0.1);
+  animation-delay: 1s;
+}
+@keyframes emblemPulse {
+  0%,100% { transform:scale(1); opacity:1; }
+  50%      { transform:scale(1.05); opacity:0.5; }
+}
+
+.lobby-emblem-inner {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(240,185,58,0.3), rgba(212,150,42,0.1) 60%, transparent);
+  border: 1px solid rgba(212,150,42,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  box-shadow:
+    0 0 30px rgba(212,150,42,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  animation: heroFloat 4s ease-in-out infinite;
+}
+@keyframes heroFloat {
+  0%,100% { transform:translateY(0); }
+  50%      { transform:translateY(-6px); }
+}
+
+.lobby-title {
+  font-family: 'Noto Sans Myanmar', sans-serif;
   font-weight: 900;
-  color: var(--gold-lt);
-  text-shadow: 0 0 20px #FFD70099;
+  font-size: clamp(38px, 7vw, 68px);
+  background: linear-gradient(
+    160deg,
+    var(--gold-deep) 0%,
+    var(--gold-mid)  20%,
+    var(--gold-bright) 45%,
+    var(--gold-shine) 55%,
+    var(--gold)      75%,
+    var(--gold-deep) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 24px rgba(212,150,42,0.5));
+  letter-spacing: 3px;
   line-height: 1;
-}
-.app-header .en-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(10px, 2.5vw, 16px);
-  color: var(--gold-dk);
-  letter-spacing: 2px;
-  margin-top: 2px;
-}
-.app-header::after {
-  content: '';
-  display: block;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-dk), transparent);
   margin-top: 8px;
 }
 
-/* ════════════════════════════════════
-   LOBBY
-════════════════════════════════════ */
-#lobby {
-  overflow-y: auto;
-  padding: 14px 12px 20px;
-  gap: 12px;
+.lobby-subtitle {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(9px, 1.5vw, 12px);
+  letter-spacing: 6px;
+  color: var(--ivory3);
+  text-transform: uppercase;
 }
-.card {
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 16px;
+
+.lobby-ornament {
+  display: flex; align-items: center; gap: 16px;
+  margin: 8px 0;
+}
+.orn-line {
+  width: 70px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.orn-gem {
+  width: 8px; height: 8px;
+  background: var(--gold-bright);
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px var(--gold-bright), 0 0 20px rgba(240,185,58,0.4);
+  animation: gemSparkle 2s ease-in-out infinite;
+}
+.orn-dot {
+  width: 4px; height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: gemSparkle 2s ease-in-out infinite 0.3s;
+}
+@keyframes gemSparkle {
+  0%,100% { opacity:1; transform:rotate(45deg) scale(1); }
+  50%      { opacity:0.5; transform:rotate(45deg) scale(0.7); }
+}
+
+/* Lobby form card */
+.lobby-card {
+  position: relative; z-index: 2;
+  width: min(460px, 96vw);
+  background: linear-gradient(
+    145deg,
+    rgba(30,17,22,0.95) 0%,
+    rgba(20,10,14,0.98) 100%
+  );
+  border: 1px solid var(--border-gold);
+  border-radius: 20px;
+  padding: 36px 32px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 50px 100px rgba(0,0,0,0.7),
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 1px 0 rgba(212,150,42,0.3) inset,
+    0 0 40px rgba(212,150,42,0.06);
+  animation: cardReveal 1s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+}
+@keyframes cardReveal {
+  from { opacity:0; transform:translateY(24px) scale(0.97); }
+  to   { opacity:1; transform:none; }
+}
+
+/* Gold top border glow on card */
+.lobby-card::before {
+  content: '';
+  position: absolute; top: -1px; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+  border-radius: 1px;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 5px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--border-gold), transparent);
+}
+
+.input-field {
   width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
-}
-.card-title {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border-gold2);
+  border-radius: 10px;
+  padding: 13px 16px;
+  color: var(--ivory);
   font-size: 14px;
-  font-weight: 700;
-  color: var(--gold);
+  font-family: 'Noto Sans Myanmar', sans-serif;
+  outline: none;
+  transition: all 0.25s;
+  margin-bottom: 12px;
+}
+.input-field::placeholder { color: var(--ivory4); font-size: 13px; }
+.input-field:focus {
+  border-color: var(--gold);
+  background: rgba(212,150,42,0.07);
+  box-shadow: 0 0 0 3px rgba(212,150,42,0.1), 0 0 20px rgba(212,150,42,0.08);
+}
+.input-field.code-style {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 10px;
   text-align: center;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
 }
-.field-lbl { font-size: 11px; color: var(--txt-dim); margin-bottom: 4px; letter-spacing: 1px; }
-.field-inp {
-  width: 100%; padding: 10px 13px;
-  background: #0d0500; border: 1px solid var(--border); border-radius: 7px;
-  color: var(--txt); font-family: inherit; font-size: 14px;
-  outline: none; margin-bottom: 10px; transition: border-color .2s;
+
+.btn-primary {
+  width: 100%;
+  padding: 14px 24px;
+  border: none; border-radius: 10px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 4px; text-transform: uppercase;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  position: relative; overflow: hidden;
 }
-.field-inp:focus { border-color: var(--gold); }
-.field-inp.code-inp {
-  text-transform: uppercase; letter-spacing: 6px;
-  text-align: center; font-size: 18px; font-weight: 900;
+.btn-primary::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s;
 }
-.btn {
-  width: 100%; padding: 12px; border: none; border-radius: 8px;
-  font-family: inherit; font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: all .2s; margin-bottom: 7px;
-  letter-spacing: .5px;
+.btn-primary:hover::after { background: rgba(255,255,255,0.07); }
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-gold-fill {
+  background: linear-gradient(135deg,
+    #7a4f0a 0%, #c08020 25%, #d4962a 45%,
+    #f0b93a 55%, #d4962a 70%, #9a6018 100%
+  );
+  color: #160800;
+  box-shadow:
+    0 4px 20px rgba(212,150,42,0.35),
+    0 1px 0 rgba(255,255,255,0.25) inset,
+    0 -1px 0 rgba(0,0,0,0.3) inset;
 }
-.btn:last-child { margin-bottom: 0; }
-.btn-gold {
-  background: linear-gradient(135deg, var(--gold-dk), var(--gold), var(--gold-dk));
-  color: #1a0800;
-  box-shadow: 0 3px 14px #FFD70030;
+.btn-gold-fill:hover {
+  box-shadow:
+    0 8px 30px rgba(212,150,42,0.55),
+    0 1px 0 rgba(255,255,255,0.25) inset;
+  transform: translateY(-1px);
 }
-.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 5px 20px #FFD70050; }
-.btn-ghost {
+
+.btn-outline-gold {
   background: transparent;
-  border: 1.5px solid var(--border);
-  color: var(--gold);
+  border: 1px solid var(--border-gold);
+  color: var(--ivory2);
+  box-shadow: none;
 }
-.btn-ghost:hover { background: #FFD70010; border-color: var(--gold-dk); }
-.btn-danger {
-  background: linear-gradient(135deg, var(--red-dk), var(--red));
-  color: #fff; font-size: 13px; padding: 10px;
-}
-.sep {
-  text-align: center; font-size: 11px; color: var(--txt-dim);
-  margin: 8px 0; position: relative;
-}
-.sep::before,.sep::after {
-  content:''; position:absolute; top:50%; width:40%; height:1px; background:var(--border);
-}
-.sep::before{left:0} .sep::after{right:0}
-
-/* waiting */
-.code-display {
-  background: #080300; border: 2px dashed var(--gold);
-  border-radius: 9px; padding: 13px; text-align: center; margin: 10px 0;
-}
-.code-big { font-size: 28px; font-weight: 900; color: var(--gold); letter-spacing: 8px; text-shadow: 0 0 16px #FFD70088; }
-.code-hint { font-size: 11px; color: var(--txt-dim); margin-top: 3px; }
-.wait-row { display:flex; align-items:center; justify-content:center; gap:8px; color:var(--txt-dim); font-size:13px; margin-top:10px; }
-.spinner { width:16px;height:16px; border:2px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin .9s linear infinite; }
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* rules accordion */
-.rules-toggle {
-  background: none; border: none; color: var(--txt-dim); font-family: inherit;
-  font-size: 12px; cursor: pointer; text-decoration: underline;
-  display: block; margin: 4px auto 0; text-align: center;
-}
-.rules-body {
-  display: none; margin-top: 10px; font-size: 11.5px;
-  line-height: 1.9; color: var(--txt-dim);
-  background: #0a0400; border-radius: 7px; padding: 11px 13px;
-}
-.rules-body.open { display:block; }
-.rules-body b { color: var(--gold); }
-
-/* ════════════════════════════════════
-   GAME SCREEN LAYOUT
-════════════════════════════════════ */
-#game {
-  flex-direction: row;  /* side-by-side on wide, stacked on narrow */
+.btn-outline-gold:hover {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+  box-shadow: 0 0 16px rgba(212,150,42,0.15);
 }
 
-/* Main play area */
-.play-area {
-  flex: 1;
-  display: flex;
+.divider-row {
+  display: flex; align-items: center; gap: 14px;
+  margin: 20px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 4px;
+  color: var(--ivory4);
+}
+.divider-row::before,.divider-row::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--border-gold2);
+}
+
+/* ═══════════════════════════════════════════════
+   ░░░  WAITING SCREEN  ░░░
+═══════════════════════════════════════════════ */
+#waiting {
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
-  padding: 6px 8px;
-  gap: 6px;
-  min-width: 0;
+  justify-content: center;
+  gap: 28px;
+  padding: 24px;
 }
 
-/* Chat panel */
-.chat-panel {
-  width: 240px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--panel2);
-  border-left: 1px solid var(--border);
-  overflow: hidden;
+.wait-logo-small {
+  font-family: 'Noto Sans Myanmar', sans-serif;
+  font-weight: 900; font-size: 26px;
+  background: linear-gradient(135deg, var(--gold-mid), var(--gold-shine));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: 3px;
 }
 
-@media (max-width: 640px) {
-  #game { flex-direction: column; }
-  .chat-panel {
-    width: 100%;
-    height: 160px;
-    border-left: none;
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
+.wait-card {
+  width: min(420px, 94vw);
+  background: linear-gradient(145deg, rgba(30,17,22,0.95), rgba(20,10,14,0.98));
+  border: 1px solid var(--border-gold);
+  border-radius: 20px;
+  padding: 36px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 50px 100px rgba(0,0,0,0.7), 0 0 40px rgba(212,150,42,0.05);
+  position: relative;
+}
+.wait-card::before {
+  content: '';
+  position: absolute; top:-1px; left:20%; right:20%; height:1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
 }
 
-/* ════════════════════════════════════
-   PLAYER / SCORE BAR
-════════════════════════════════════ */
-.score-strip {
+.wait-heading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 5px;
+  color: var(--gold); margin-bottom: 24px;
+}
+
+.room-id-display {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 600;
+  letter-spacing: 12px;
+  color: var(--gold-shine);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-shadow: 0 0 20px rgba(240,185,58,0.5);
+  margin-bottom: 8px;
+  display: block;
+}
+.room-id-display:hover {
+  border-color: var(--gold);
+  background: rgba(212,150,42,0.07);
+  box-shadow: 0 0 30px rgba(212,150,42,0.15);
+}
+
+.copy-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 3px;
+  color: var(--ivory4); margin-bottom: 24px;
+}
+
+.myanmar-loader {
   display: flex; align-items: center; justify-content: center;
-  gap: 12px; font-size: 12px; color: var(--txt-dim); flex-shrink: 0;
+  gap: 10px; margin-bottom: 24px;
 }
-.score-n { font-size: 18px; font-weight: 900; color: var(--gold); }
+.myanmar-loader span {
+  width: 8px; height: 8px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  animation: diamondPulse 1.6s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--gold);
+}
+.myanmar-loader span:nth-child(2) { animation-delay: 0.3s; background: var(--ruby2); }
+.myanmar-loader span:nth-child(3) { animation-delay: 0.6s; }
+@keyframes diamondPulse {
+  0%,80%,100% { opacity:0.2; transform:rotate(45deg) scale(0.6); }
+  40%         { opacity:1;   transform:rotate(45deg) scale(1.2); }
+}
 
-.players-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  width: 100%; max-width: 500px; gap: 8px; flex-shrink: 0;
+/* ═══════════════════════════════════════════════
+   ░░░  GAME SCREEN  ░░░
+═══════════════════════════════════════════════ */
+#game { display:none; position:fixed; inset:0; }
+#game.active { display:flex; }
+
+.game-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr 300px;
+  grid-template-rows: 1fr;
+  width: 100%; height: 100%;
 }
+
+@media (max-width: 1100px) {
+  .game-layout { grid-template-columns: 200px 1fr 0; }
+  .panel-chat { display: none; }
+}
+@media (max-width: 700px) {
+  .game-layout { grid-template-columns: 0 1fr 0; }
+  .panel-info  { display: none; }
+}
+
+/* ─── LEFT INFO PANEL ────────────────────────── */
+.panel-info {
+  background: rgba(5,3,4,0.97);
+  border-right: 1px solid var(--border-gold2);
+  display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+}
+
+/* Decorative gold stripe */
+.panel-info::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg,
+    transparent 0%, var(--gold-deep) 20%,
+    var(--gold-bright) 50%, var(--gold-deep) 80%, transparent 100%
+  );
+}
+
+/* Myanmar pattern side decoration */
+.panel-info::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0; right: 0; width: 1px;
+  background: linear-gradient(180deg,
+    transparent, var(--border-gold), var(--gold), var(--border-gold), transparent
+  );
+}
+
+.info-header {
+  padding: 22px 20px 16px;
+  border-bottom: 1px solid var(--border-gold2);
+  position: relative;
+}
+
+.info-logo {
+  font-family: 'Noto Sans Myanmar', sans-serif;
+  font-weight: 900; font-size: 20px;
+  background: linear-gradient(135deg, var(--gold-mid), var(--gold-shine));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: 2px; line-height: 1.2;
+}
+
+.info-logo-en {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; letter-spacing: 4px;
+  color: var(--ivory4);
+  margin-top: 3px;
+}
+
+.info-body {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  scrollbar-width: none;
+}
+.info-body::-webkit-scrollbar { display: none; }
+
+/* Player cards */
 .player-card {
-  flex: 1; background: var(--panel);
-  border: 2px solid transparent; border-radius: 9px;
-  padding: 8px 10px; transition: all .3s; position: relative; overflow: hidden;
-}
-.player-card.active { border-color: var(--gold); box-shadow: 0 0 14px #FFD70055; }
-.player-card.active::after {
-  content:'▶'; position:absolute; right:7px; top:50%;
-  transform:translateY(-50%); color:var(--gold); font-size:9px;
-  animation: blink 1s infinite;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
-.pc-row { display:flex; align-items:center; gap:5px; }
-.dot { width:12px;height:12px;border-radius:50%;flex-shrink:0; }
-.dot-y { background:radial-gradient(circle at 35% 35%,#ffe040,#8B6914); border:1.5px solid #FFD700; }
-.dot-b { background:radial-gradient(circle at 35% 35%,#5577dd,#0a1a5c); border:1.5px solid #7799ff; }
-.pc-name { font-size:11px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.pc-count { font-size:10px; color:var(--txt-dim); margin-top:2px; }
-
-.mid-col { text-align:center; flex-shrink:0; }
-.vs-lbl { font-family:'Cinzel Decorative',serif; font-size:11px; color:var(--gold-dk); }
-.timer { font-size:20px; font-weight:900; color:var(--gold); min-width:36px; font-variant-numeric:tabular-nums; }
-.timer.urgent { color:var(--red); animation:blink .5s infinite; }
-
-/* ════════════════════════════════════
-   STATUS BAR
-════════════════════════════════════ */
-.status-bar {
-  background: var(--panel); border:1px solid var(--border); border-radius:8px;
-  padding:8px 16px; text-align:center; width:100%; max-width:500px;
-  font-size:13px; font-weight:700; color:var(--gold);
-  min-height:38px; display:flex; align-items:center; justify-content:center;
-  flex-shrink:0;
+  border-radius: 14px;
+  padding: 14px 14px 14px 18px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border-gold2);
+  position: relative; overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
 }
 
-/* ════════════════════════════════════
-   BOARD
-════════════════════════════════════ */
-.board-wrap {
+/* Side accent bar */
+.player-card .card-accent {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  border-radius: 14px 0 0 14px;
+}
+.card-white .card-accent {
+  background: linear-gradient(180deg, #fff8e0, #c8b878);
+}
+.card-black .card-accent {
+  background: linear-gradient(180deg, var(--jade2), var(--jade));
+}
+
+/* Inner glow overlay */
+.player-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity 0.35s;
+  border-radius: 14px;
+}
+.card-white::before {
+  background: radial-gradient(ellipse at 30% 50%, rgba(212,150,42,0.1), transparent 70%);
+}
+.card-black::before {
+  background: radial-gradient(ellipse at 30% 50%, rgba(46,204,113,0.07), transparent 70%);
+}
+
+.player-card.is-active {
+  border-color: rgba(212,150,42,0.45);
+  box-shadow: 0 0 24px rgba(212,150,42,0.12), inset 0 1px 0 rgba(212,150,42,0.15);
+  transform: translateX(4px);
+}
+.player-card.is-active::before { opacity: 1; }
+
+.card-name {
+  font-size: 13px; font-weight: 600; letter-spacing: 1px;
+  color: var(--ivory); margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; letter-spacing: 3px; color: var(--ivory4);
+  margin-bottom: 10px;
+}
+.card-count-row {
+  display: flex; align-items: baseline; gap: 6px;
+}
+.card-count-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 30px; font-weight: 600; line-height: 1;
+  color: var(--gold-shine);
+  transition: all 0.2s;
+}
+.card-count-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; letter-spacing: 2px; color: var(--ivory4);
+}
+.card-pips {
+  display: flex; flex-wrap: wrap; gap: 3px; margin-top: 8px;
+}
+.pip {
+  width: 7px; height: 7px;
+  transition: all 0.4s;
+}
+.pip-w {
+  background: var(--ivory);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 4px rgba(255,240,192,0.5);
+}
+.pip-b {
+  background: var(--jade3);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 4px rgba(46,204,113,0.4);
+}
+.pip-lost {
+  background: rgba(255,255,255,0.06);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+/* Status card */
+.status-card {
+  border-radius: 12px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-gold2);
+}
+.status-turn-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 7px;
+}
+.status-turn-dot {
+  width: 7px; height: 7px;
+  background: var(--gold);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  animation: turnDotBlink 1.2s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--gold);
+}
+@keyframes turnDotBlink {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.2; transform:scale(0.6); }
+}
+.status-turn-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 4px; color: var(--gold);
+  font-weight: 600;
+}
+.status-message {
+  font-size: 11px; line-height: 1.65; color: var(--ivory3);
+}
+
+/* HUFF */
+.huff-section { display: none; }
+.huff-section.visible { display: block; }
+
+.btn-huff {
+  width: 100%; padding: 14px;
+  border: none; border-radius: 12px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg,
+    #5c0a0a 0%, #8b1a1a 30%, #c0392b 55%, #e74c3c 70%, #c0392b 85%, #8b1a1a 100%
+  );
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(192,57,43,0.4);
+  position: relative; overflow: hidden;
+  animation: huffFlicker 2s ease-in-out infinite;
+}
+.btn-huff::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+}
+.btn-huff::after {
+  content: '⚡';
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  font-size: 16px;
+}
+@keyframes huffFlicker {
+  0%,100% { box-shadow: 0 4px 20px rgba(192,57,43,0.4), 0 0 0 0 rgba(192,57,43,0.3); }
+  40%      { box-shadow: 0 6px 30px rgba(192,57,43,0.7), 0 0 0 6px rgba(192,57,43,0); }
+  70%      { box-shadow: 0 4px 24px rgba(192,57,43,0.5), 0 0 0 0 rgba(192,57,43,0); }
+}
+.huff-note {
+  margin-top: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.5px; color: var(--ivory4);
+  text-align: center; line-height: 1.6;
+}
+
+/* Footer */
+.info-footer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border-gold2);
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.room-chip {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border-gold2);
+  border-radius: 9px; padding: 9px 12px;
+  cursor: pointer; transition: all 0.2s;
+}
+.room-chip:hover { border-color: var(--gold); }
+.room-chip-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; letter-spacing: 3px; color: var(--ivory4);
+}
+.room-chip-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 600; letter-spacing: 5px;
+  color: var(--gold-shine);
+}
+
+/* ─── BOARD AREA ──────────────────────────────── */
+.board-area {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--lacquer);
+  position: relative; overflow: hidden;
+}
+
+/* Board area ambient glow */
+.board-area::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(212,150,42,0.05) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.board-container {
   position: relative;
-  flex-shrink: 0;
+  padding: 28px;
 }
+
+/* Ornate frame corners - Myanmar temple style */
+.board-container::before, .board-container::after,
+.board-container .corner-br, .board-container .corner-bl {
+  content: '';
+  position: absolute;
+  width: 32px; height: 32px;
+  pointer-events: none;
+}
+.board-container::before {
+  top: 8px; left: 8px;
+  border-top: 2px solid var(--gold);
+  border-left: 2px solid var(--gold);
+  border-radius: 6px 0 0 0;
+  box-shadow: -1px -1px 0 0 rgba(240,185,58,0.2);
+}
+.board-container::after {
+  top: 8px; right: 8px;
+  border-top: 2px solid var(--gold);
+  border-right: 2px solid var(--gold);
+  border-radius: 0 6px 0 0;
+  box-shadow: 1px -1px 0 0 rgba(240,185,58,0.2);
+}
+.corner-br {
+  bottom: 8px; right: 8px;
+  border-bottom: 2px solid var(--gold);
+  border-right: 2px solid var(--gold);
+  border-radius: 0 0 6px 0;
+}
+.corner-bl {
+  bottom: 8px; left: 8px;
+  border-bottom: 2px solid var(--gold);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 0 0 6px;
+}
+
 .board-frame {
-  background: linear-gradient(135deg, #5a2e10, #2a1008, #5a2e10);
-  padding: 8px; border-radius: 10px;
-  box-shadow: 0 0 0 1px var(--border), 0 8px 32px #00000099;
-  position: relative;
+  border: 2px solid rgba(212,150,42,0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.9),
+    0 0 0 4px rgba(212,150,42,0.08),
+    0 30px 90px rgba(0,0,0,0.8),
+    0 0 60px rgba(212,150,42,0.07),
+    inset 0 0 30px rgba(0,0,0,0.3);
 }
-.board-frame::before {
-  content:''; position:absolute; inset:2px;
-  border:1px solid var(--gold-dk); border-radius:8px;
-  pointer-events:none; z-index:20;
-}
-.board-inner { position:relative; }
 
 #board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  /* Dynamically sized via JS */
-  width: var(--board-size, min(80vw, 380px));
-  height: var(--board-size, min(80vw, 380px));
-  border-radius: 2px;
-  overflow: hidden;
+  user-select: none;
 }
 
-/* SVG overlay for move arrows */
-#arrow-svg {
-  position: absolute; top:0; left:0; width:100%; height:100%;
-  pointer-events: none; z-index:15; overflow:visible;
+/* ─── CELLS ───────────────────────────────────── */
+.cell {
+  width:  clamp(50px, 8.5vw, 78px);
+  height: clamp(50px, 8.5vw, 78px);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  transition: background 0.12s;
 }
 
-/* Cells */
-.cell { position:relative; cursor:default; overflow:hidden; }
-.cell.lt { background: var(--cell-lt); }
-.cell.dk { background: var(--cell-dk); }
-.cell.dk.sel { background: var(--cell-sel) !important; }
-.cell.dk.vm { background: var(--cell-vm); cursor:pointer; }
+.cell-light { background: var(--sq-light); }
+.cell-dark  { background: var(--sq-dark); cursor: pointer; }
+.cell-dark:hover { background: #120809; }
 
-/* pulse dot on valid move */
-.cell.dk.vm::after {
-  content:''; position:absolute; inset:32%;
-  border-radius:50%; background:#ffffff25;
-  animation:vmpulse 1.1s ease-in-out infinite;
+/* Selection ring */
+.cell-selected {
+  background: rgba(212,150,42,0.22) !important;
+  box-shadow: inset 0 0 0 2px rgba(212,150,42,0.6);
 }
-@keyframes vmpulse { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.15);opacity:1} }
 
-/* ════════════════════════════════════
-   PIECES
-════════════════════════════════════ */
+/* Valid move indicator - subtle diamond */
+.cell-move::after {
+  content: '';
+  position: absolute;
+  width: 26%; height: 26%;
+  background: rgba(46,204,113,0.65);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 12px rgba(46,204,113,0.5);
+  pointer-events: none;
+  animation: moveDot 1.5s ease-in-out infinite;
+}
+@keyframes moveDot {
+  0%,100% { transform:scale(1); opacity:0.8; }
+  50%      { transform:scale(1.2); opacity:1; }
+}
+
+/* Capture indicator - glowing diamond */
+.cell-capture::after {
+  content: '';
+  position: absolute;
+  width: 38%; height: 38%;
+  background: rgba(214,48,49,0.75);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 16px rgba(214,48,49,0.7);
+  pointer-events: none;
+  animation: captureDot 0.7s ease-in-out infinite alternate;
+}
+@keyframes captureDot {
+  from { transform:scale(0.85) rotate(0deg); opacity:0.7; }
+  to   { transform:scale(1.1) rotate(10deg);  opacity:1; }
+}
+
+/* ─── PIECES ──────────────────────────────────── */
 .piece {
-  position:absolute; inset:7%;
-  border-radius:50%;
-  cursor:pointer;
-  transition: transform .14s, box-shadow .14s;
-  display:flex; align-items:center; justify-content:center;
-  user-select:none; z-index:5;
+  width: 72%; height: 72%;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; z-index: 2;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
 }
-.piece:hover { transform:scale(1.06); }
-.piece.py {
-  background: radial-gradient(circle at 35% 30%, #fff176, #b8860b);
-  border: 3px solid #FFD700;
-  box-shadow: 0 3px 8px #00000088, 0 0 0 1px #7a5800, inset 0 -2px 5px #00000044;
-}
-.piece.pb {
-  background: radial-gradient(circle at 35% 30%, #6688ee, #0d1d6e);
-  border: 3px solid #99aaff;
-  box-shadow: 0 3px 8px #00000088, 0 0 0 1px #0a1060, inset 0 -2px 5px #00000044;
-}
-.piece.king::after {
-  content:'♛';
-  font-size: clamp(9px, 2.2vw, 15px);
-  text-shadow: 0 0 5px #000;
-}
-.piece.py.king::after { color: var(--gold-dk); }
-.piece.pb.king::after { color: #ffffff; }
-.piece.lifted {
-  transform: scale(1.14) translateY(-4px) !important;
-  box-shadow: 0 8px 20px #00000099, 0 0 16px #FFD70066 !important;
-  z-index: 10 !important;
+.piece:hover { transform: scale(1.1) translateY(-3px); }
+
+/* White piece - Ivory / Myanmar conch shell */
+.piece-white {
+  background: radial-gradient(circle at 32% 28%,
+    #ffffff 0%, #f5edd0 35%, #e0d0a0 65%, #c0a860 100%
+  );
+  border: 2px solid rgba(255,255,255,0.5);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.6),
+    0 2px 4px rgba(0,0,0,0.4),
+    inset 0 3px 8px rgba(255,255,255,0.75),
+    inset 0 -3px 8px rgba(0,0,0,0.15),
+    inset 1px 1px 0 rgba(255,255,255,0.5);
 }
 
-/* ════════════════════════════════════
-   MOVE LOG
-════════════════════════════════════ */
-.move-log {
-  width:100%; max-width:500px;
-  background:var(--panel); border:1px solid var(--border); border-radius:7px;
-  padding:6px 10px; height:44px; overflow-y:auto;
-  display:flex; flex-wrap:wrap; gap:3px; align-content:flex-start;
-  flex-shrink:0;
+/* Black piece - Myanmar jade / emerald */
+.piece-black {
+  background: radial-gradient(circle at 32% 28%,
+    #2a5040 0%, #1a3028 35%, #0d1e18 65%, #060e0b 100%
+  );
+  border: 2px solid rgba(46,204,113,0.2);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.75),
+    0 2px 4px rgba(0,0,0,0.5),
+    inset 0 3px 8px rgba(46,204,113,0.15),
+    inset 0 -3px 8px rgba(0,0,0,0.5),
+    inset 1px 1px 0 rgba(46,204,113,0.1);
 }
-.move-log span { font-size:10px; background:#0a0400; border-radius:3px; padding:2px 5px; }
-.move-log .y-mv { border-left:2px solid #FFD700; color:var(--gold-dk); }
-.move-log .b-mv { border-left:2px solid #4466cc; color:#6688cc; }
 
-/* game buttons */
-.game-btns { display:flex; gap:8px; width:100%; max-width:500px; flex-shrink:0; }
-.game-btns .btn { font-size:12px; padding:10px; margin:0; }
+/* King - gold crown ring */
+.piece-king::before {
+  content: '';
+  position: absolute; inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--gold-bright);
+  box-shadow:
+    0 0 12px var(--gold),
+    0 0 24px rgba(212,150,42,0.3),
+    inset 0 0 8px rgba(212,150,42,0.2);
+  animation: kingGlow 2s ease-in-out infinite;
+}
+@keyframes kingGlow {
+  0%,100% { box-shadow: 0 0 10px var(--gold), 0 0 20px rgba(212,150,42,0.25); opacity:0.8; }
+  50%      { box-shadow: 0 0 18px var(--gold-bright), 0 0 35px rgba(240,185,58,0.45); opacity:1; }
+}
+.piece-king::after {
+  content: '♛';
+  position: absolute;
+  font-size: 38%;
+  color: var(--gold-shine);
+  text-shadow: 0 0 6px var(--gold);
+  line-height: 1;
+}
 
-/* ════════════════════════════════════
-   CHAT PANEL
-════════════════════════════════════ */
+/* Huffable */
+.piece-huffable {
+  animation: huffable 1.3s ease-in-out infinite !important;
+}
+@keyframes huffable {
+  0%,100% {
+    box-shadow: 0 0 12px rgba(214,48,49,0.6), 0 6px 14px rgba(0,0,0,0.6), inset 0 3px 8px rgba(255,255,255,0.75);
+    border-color: var(--ruby3);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(214,48,49,1), 0 0 50px rgba(214,48,49,0.4), 0 6px 14px rgba(0,0,0,0.6), inset 0 3px 8px rgba(255,255,255,0.75);
+    border-color: #ff6b6b;
+  }
+}
+
+/* Selected piece lift */
+.piece-selected {
+  transform: scale(1.15) translateY(-5px) !important;
+  z-index: 10;
+}
+.piece-white.piece-selected {
+  box-shadow: 0 12px 28px rgba(212,150,42,0.5), inset 0 3px 8px rgba(255,255,255,0.75) !important;
+}
+.piece-black.piece-selected {
+  box-shadow: 0 12px 28px rgba(46,204,113,0.4), inset 0 3px 8px rgba(46,204,113,0.2) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   ░░░  CHAT PANEL  ░░░
+═══════════════════════════════════════════════ */
+.panel-chat {
+  background: rgba(5,3,4,0.98);
+  border-left: 1px solid var(--border-gold2);
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.panel-chat::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg,
+    transparent, var(--jade-deep, #0d3a22), var(--jade2), var(--jade3),
+    var(--jade2), var(--jade-deep, #0d3a22), transparent
+  );
+}
+
 .chat-header {
-  padding:10px 12px 8px;
-  border-bottom:1px solid var(--border);
-  font-size:12px; font-weight:700; color:var(--gold);
-  flex-shrink:0;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--border-gold2);
+  display: flex; align-items: center; gap: 12px;
 }
-.chat-messages {
-  flex:1; overflow-y:auto;
-  padding:8px 10px;
-  display:flex; flex-direction:column; gap:6px;
+
+.chat-icon-wrap {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: rgba(46,204,113,0.12);
+  border: 1px solid rgba(46,204,113,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
 }
-.chat-msg { display:flex; flex-direction:column; max-width:90%; }
-.chat-msg.mine { align-self:flex-end; align-items:flex-end; }
-.chat-msg.theirs { align-self:flex-start; align-items:flex-start; }
+
+.chat-header-info { flex: 1; }
+.chat-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 3px;
+  color: var(--jade3); font-weight: 600;
+}
+.chat-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; letter-spacing: 2px; color: var(--ivory4);
+  margin-top: 2px;
+}
+
+.live-badge {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(46,204,113,0.1);
+  border: 1px solid rgba(46,204,113,0.2);
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; letter-spacing: 2px;
+  color: var(--jade3);
+}
+.live-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--jade3);
+  animation: liveBlink 1.5s ease-in-out infinite;
+}
+@keyframes liveBlink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+#chat-messages {
+  flex: 1; overflow-y: auto; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212,150,42,0.15) transparent;
+}
+#chat-messages::-webkit-scrollbar { width: 3px; }
+#chat-messages::-webkit-scrollbar-track { background: transparent; }
+#chat-messages::-webkit-scrollbar-thumb { background: rgba(212,150,42,0.18); border-radius: 2px; }
+
+/* Chat messages */
+.chat-message { animation: msgIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+@keyframes msgIn {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:none; }
+}
+
 .chat-bubble {
-  padding:6px 9px; border-radius:10px;
-  font-size:12px; line-height:1.4; word-break:break-word;
+  border-radius: 5px 14px 14px 14px;
+  padding: 10px 14px;
+  max-width: 85%;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
 }
-.chat-msg.mine .chat-bubble { background:#5a3010; color:var(--gold-lt); border-radius:10px 10px 2px 10px; }
-.chat-msg.theirs .chat-bubble { background:#1a0d04; color:var(--txt); border:1px solid var(--border); border-radius:10px 10px 10px 2px; }
-.chat-sender { font-size:10px; color:var(--txt-dim); margin-bottom:2px; }
-.chat-system { text-align:center; font-size:10px; color:var(--txt-dim); font-style:italic; }
+.chat-message.is-mine .chat-bubble {
+  border-radius: 14px 5px 14px 14px;
+  background: rgba(46,204,113,0.09);
+  border-color: rgba(46,204,113,0.18);
+  margin-left: auto;
+}
+.chat-message.is-system {
+  display: flex; justify-content: center;
+}
+.chat-message.is-system .chat-bubble {
+  background: rgba(212,150,42,0.06);
+  border-color: rgba(212,150,42,0.12);
+  border-radius: 8px;
+  text-align: center;
+  padding: 6px 14px;
+}
 
-.chat-input-row {
-  display:flex; gap:6px; padding:8px 10px;
-  border-top:1px solid var(--border); flex-shrink:0;
+.chat-sender {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 2px; font-weight: 600;
+  margin-bottom: 5px;
 }
-.chat-inp {
-  flex:1; padding:7px 9px;
-  background:#0a0400; border:1px solid var(--border); border-radius:6px;
-  color:var(--txt); font-family:inherit; font-size:12px; outline:none;
+.chat-message.is-mine .chat-sender { color: var(--jade3); }
+.chat-message:not(.is-mine):not(.is-system) .chat-sender { color: var(--gold); }
+.chat-message.is-system .chat-sender { display: none; }
+
+.chat-text {
+  font-size: 12px; line-height: 1.6; color: var(--ivory2);
+  word-break: break-word;
 }
-.chat-inp:focus { border-color:var(--gold-dk); }
+.chat-message.is-system .chat-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.5px; color: var(--ivory4);
+}
+
+.chat-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; color: var(--ivory4);
+  margin-top: 4px; text-align: right;
+}
+
+/* Chat input */
+.chat-input-area {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border-gold2);
+  display: flex; flex-direction: column; gap: 9px;
+}
+
+.emoji-strip {
+  display: flex; gap: 5px;
+}
+.emoji-pill {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-gold2);
+  border-radius: 6px; padding: 4px 8px;
+  font-size: 15px; cursor: pointer;
+  transition: all 0.15s; line-height: 1;
+}
+.emoji-pill:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--border-gold);
+  transform: scale(1.12) translateY(-2px);
+}
+
+.chat-row {
+  display: flex; gap: 8px; align-items: flex-end;
+}
+.chat-textarea {
+  flex: 1;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border-gold2);
+  border-radius: 10px;
+  padding: 10px 13px;
+  color: var(--ivory);
+  font-size: 12px;
+  font-family: 'Noto Sans Myanmar', sans-serif;
+  outline: none; resize: none;
+  height: 42px; line-height: 1.4;
+  transition: all 0.2s;
+}
+.chat-textarea::placeholder { color: var(--ivory4); font-size: 11px; }
+.chat-textarea:focus {
+  border-color: var(--jade2);
+  background: rgba(46,204,113,0.04);
+  box-shadow: 0 0 0 3px rgba(46,204,113,0.08);
+}
 .chat-send {
-  padding:7px 11px;
-  background:var(--gold-dk); color:#1a0800;
-  border:none; border-radius:6px; font-size:13px;
-  cursor:pointer; flex-shrink:0;
+  width: 42px; height: 42px;
+  border-radius: 10px; border: none;
+  background: linear-gradient(135deg, var(--jade), var(--jade2));
+  cursor: pointer; color: #fff; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(46,204,113,0.3);
 }
+.chat-send:hover {
+  transform: scale(1.06) translateY(-1px);
+  box-shadow: 0 6px 20px rgba(46,204,113,0.5);
+}
+.chat-send:active { transform: scale(0.95); }
 
-/* ════════════════════════════════════
-   WIN MODAL
-════════════════════════════════════ */
+/* ═══════════════════════════════════════════════
+   ░░░  WIN MODAL  ░░░
+═══════════════════════════════════════════════ */
 .overlay {
-  display:none; position:fixed; inset:0;
-  background:#00000099; backdrop-filter:blur(4px);
-  z-index:100; align-items:center; justify-content:center;
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(14px);
+  align-items: center; justify-content: center;
 }
-.overlay.show { display:flex; }
-.modal {
-  background: linear-gradient(135deg, var(--panel2), #3d1e08);
-  border:2px solid var(--gold); border-radius:16px;
-  padding:32px 26px; text-align:center;
-  max-width:320px; width:90%;
-  box-shadow:0 20px 60px #000c, 0 0 30px #FFD70033;
-  animation: popIn .4s cubic-bezier(.175,.885,.32,1.275);
-}
-@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-icon { font-size:50px; margin-bottom:10px; }
-.modal h2 { font-size:20px; color:var(--gold); margin-bottom:6px; }
-.modal p  { font-size:13px; color:var(--txt-dim); margin-bottom:20px; }
+.overlay.active { display: flex; }
 
-/* TOAST */
-.toast {
-  position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(80px);
-  background:var(--panel2); border:1px solid var(--border);
-  border-radius:20px; padding:9px 18px; font-size:13px;
-  z-index:200; transition:transform .3s; white-space:nowrap;
-  max-width:90vw; overflow:hidden; text-overflow:ellipsis;
+.win-modal {
+  width: min(400px, 92vw);
+  background: linear-gradient(160deg,
+    rgba(30,15,20,0.98) 0%,
+    rgba(12,7,10,0.99) 100%
+  );
+  border: 1px solid var(--border-gold);
+  border-radius: 24px;
+  padding: 50px 40px;
+  text-align: center;
+  position: relative; overflow: hidden;
+  box-shadow:
+    0 80px 160px rgba(0,0,0,0.7),
+    0 0 80px rgba(212,150,42,0.12);
+  animation: winModalIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both;
 }
-.toast.show { transform:translateX(-50%) translateY(0); }
+@keyframes winModalIn {
+  from { opacity:0; transform:scale(0.82) translateY(24px); }
+  to   { opacity:1; transform:none; }
+}
+
+/* Golden top border */
+.win-modal::before {
+  content: '';
+  position: absolute; top: -1px; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-shine), transparent);
+}
+
+.win-medal {
+  font-size: 76px; display: block; margin-bottom: 16px;
+  animation: medalFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px var(--gold));
+}
+@keyframes medalFloat {
+  0%,100% { transform:translateY(0) rotate(-4deg); }
+  50%      { transform:translateY(-10px) rotate(4deg); }
+}
+
+.win-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 28px; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-mid), var(--gold-shine), var(--gold-mid));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 2px 8px rgba(212,150,42,0.4));
+}
+
+.win-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 16px;
+  color: var(--ivory3); margin-bottom: 28px; line-height: 1.6;
+}
+
+/* ═══ UTILITY ═══════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:none; }
+}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════
-     LOBBY SCREEN
-══════════════════════════════════ -->
+<!-- ════════════════════════════════════════════
+     LOBBY
+════════════════════════════════════════════ -->
 <div id="lobby" class="screen active">
-  <div class="app-header">
-    <div class="my-title">ကျားကွက်</div>
-    <div class="en-title">KYAR KWAT · Myanmar Traditional Checkers</div>
+  <!-- Animated mandala SVG background -->
+  <div class="mandala-rings">
+    <svg viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Concentric decorative rings inspired by Myanmar circular patterns -->
+      <circle cx="300" cy="300" r="280" stroke="#d4962a" stroke-width="0.5"/>
+      <circle cx="300" cy="300" r="240" stroke="#d4962a" stroke-width="0.3"/>
+      <circle cx="300" cy="300" r="200" stroke="#d4962a" stroke-width="0.5"/>
+      <circle cx="300" cy="300" r="160" stroke="#d4962a" stroke-width="0.3"/>
+      <!-- 8 petal pattern (Bagan temple style) -->
+      <g stroke="#d4962a" stroke-width="0.5" opacity="0.8">
+        <line x1="300" y1="20"  x2="300" y2="580"/>
+        <line x1="20"  y1="300" x2="580" y2="300"/>
+        <line x1="102" y1="102" x2="498" y2="498"/>
+        <line x1="498" y1="102" x2="102" y2="498"/>
+      </g>
+      <!-- Diamond markers -->
+      <g fill="#d4962a" opacity="0.6">
+        <polygon points="300,10 308,18 300,26 292,18"/>
+        <polygon points="300,574 308,582 300,590 292,582"/>
+        <polygon points="10,300 18,292 26,300 18,308"/>
+        <polygon points="574,300 582,292 590,300 582,308"/>
+        <polygon points="95,95 103,87 111,95 103,103"/>
+        <polygon points="495,95 503,87 511,95 503,103"/>
+        <polygon points="95,495 103,487 111,495 103,503"/>
+        <polygon points="495,495 503,487 511,495 503,503"/>
+      </g>
+      <!-- Inner decorative ring details -->
+      <g stroke="#d4962a" stroke-width="0.3" opacity="0.4">
+        <circle cx="300" cy="300" r="120"/>
+        <circle cx="300" cy="300" r="80"/>
+        <circle cx="300" cy="300" r="40"/>
+      </g>
+    </svg>
   </div>
 
-  <!-- Main card -->
-  <div class="card" style="margin-top:8px">
-    <div class="card-title">🎮 ကစားနည်းရွေးချယ်ပါ</div>
+  <div class="lobby-hero">
+    <div class="lobby-emblem">
+      <div class="lobby-emblem-ring"></div>
+      <div class="lobby-emblem-ring"></div>
+      <div class="lobby-emblem-ring"></div>
+      <div class="lobby-emblem-inner">♟</div>
+    </div>
+    <h1 class="lobby-title">ကျားကွက်</h1>
+    <p class="lobby-subtitle">Myanmar Traditional Draughts</p>
+    <div class="lobby-ornament">
+      <div class="orn-dot"></div>
+      <div class="orn-line"></div>
+      <div class="orn-gem"></div>
+      <div class="orn-line"></div>
+      <div class="orn-dot"></div>
+    </div>
+  </div>
 
-    <div class="field-lbl">သင်၏နာမည်</div>
-    <input class="field-inp" id="inp-name" type="text" placeholder="နာမည်ထည့်ပါ..." maxlength="20">
-
-    <button class="btn btn-gold" onclick="ui.createRoom()">🏠 Online Room ဖန်တီးပါ</button>
-    <div class="sep">သို့မဟုတ်</div>
-
-    <div class="field-lbl">Room Code ဖြင့်ဝင်ပါ</div>
-    <input class="field-inp code-inp" id="inp-code" type="text" placeholder="CODE" maxlength="6">
-    <button class="btn btn-ghost" onclick="ui.joinRoom()">🚪 Room ဝင်ပါ</button>
-    <div class="sep">သို့မဟုတ်</div>
-
-    <button class="btn btn-ghost" onclick="ui.startAI()">🤖 AI နှင့်ကစားပါ</button>
-    <button class="btn btn-ghost" onclick="ui.startLocal()">👥 ၂ ယောက် Local ကစားပါ</button>
-
-    <button class="rules-toggle" onclick="document.getElementById('rules').classList.toggle('open')">
-      📖 ကျားကစားနည်းများ ဖတ်ရန်နှိပ်ပါ
+  <div class="lobby-card">
+    <div class="section-label">ကစားသူ အချက်အလက်</div>
+    <input type="text" class="input-field" id="player-name" placeholder="သင်၏ အမည် · Your Name" maxlength="22">
+    <button class="btn-primary btn-gold-fill" onclick="createGame()">
+      <span>✦</span>&nbsp; NEW GAME &nbsp;<span>✦</span>
     </button>
-    <div class="rules-body" id="rules">
-      <b>🏁 Board Setup</b><br>
-      • 8×8 (၆၄ ကွက်) · တစ်ဘက် ၁၂ ကျား<br>
-      • အနက်ကွက်ပေါ်သာ ချထား · ၃ တန်းစီ<br><br>
-      <b>♟ ရွေ့လျားနည်း</b><br>
-      • သာမန်ကျား — ရှေ့ diagonal တစ်ကွက်<br>
-      • ကျားဘုရင် (♛) — ၄ ဖက်လုံး diagonal မည်မျှမဆို<br><br>
-      <b>⚠️ ဖမ်းစားနည်း</b><br>
-      • ဖမ်းစရာရှိလျှင် <u>မဖြစ်မနေ ဖမ်းရမည်</u><br>
-      • ဆက်တိုက်ဖမ်းနိုင်လျှင် ဆုံးသည်အထိ ဆက်ဖမ်းရမည်<br>
-      • ဖမ်းနိုင်သော လမ်းကြောင်းနှစ်ခုရှိပါက <u>အများဆုံးဖမ်းနိုင်သောလမ်း</u>ကိုသာ ရွေးရမည်<br><br>
-      <b>🏆 နိုင်ခြင်း</b><br>
-      • ဆန့်ကျင်ဘက် ကျားများ အားလုံးကုန်ခြင်း<br>
-      • ဆန့်ကျင်ဘက် ရွေ့ရာမရှိ ပိတ်မိခြင်း<br>
-      • ၄၀ လှည့်တွင် ဖမ်းမှုမရှိပါက — သရေ
-    </div>
-  </div>
-
-  <!-- Waiting panel -->
-  <div class="card" id="wait-card" style="display:none;margin-top:8px">
-    <div class="card-title">⏳ သူငယ်ချင်းကိုစောင့်နေသည်</div>
-    <div class="code-display">
-      <div class="code-big" id="room-code-disp">------</div>
-      <div class="code-hint">ဒီ Code ကို သူငယ်ချင်းကိုပေးပါ</div>
-    </div>
-    <div class="wait-row">
-      <div class="spinner"></div>
-      <span>Player 2 ဝင်ရောက်ရန် စောင့်နေသည်...</span>
-    </div>
-    <button class="btn btn-danger" onclick="ui.cancelRoom()" style="margin-top:12px">❌ ပယ်ဖျက်ပါ</button>
+    <div class="divider-row">or join</div>
+    <input type="text" class="input-field code-style" id="join-game-id" placeholder="ROOM ID" maxlength="6">
+    <button class="btn-primary btn-outline-gold" onclick="joinGame()">
+      JOIN EXISTING GAME →
+    </button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     GAME SCREEN
-══════════════════════════════════ -->
+<!-- ════════════════════════════════════════════
+     WAITING
+════════════════════════════════════════════ -->
+<div id="waiting" class="screen" style="flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:24px;">
+  <div class="mandala-rings"></div>
+
+  <div style="position:relative;z-index:2;text-align:center;">
+    <div style="font-size:40px;margin-bottom:8px;display:block;filter:drop-shadow(0 0 16px var(--gold));animation:heroFloat 4s ease-in-out infinite;">♟</div>
+    <div class="wait-logo-small">ကျားကွက်</div>
+  </div>
+
+  <div class="wait-card" style="position:relative;z-index:2;">
+    <div class="wait-heading">⏳ &nbsp; WAITING FOR OPPONENT</div>
+    <div class="room-id-display" id="display-game-id" onclick="copyGameId()">——</div>
+    <div class="copy-label">📋 &nbsp; Click to copy · မိတ်ဆွေကို ပေးပို့ပါ</div>
+    <div class="myanmar-loader">
+      <span></span><span></span><span></span>
+    </div>
+    <button class="btn-primary btn-outline-gold" style="width:auto;padding:10px 28px;margin:0 auto;display:flex;" onclick="backToLobby()">
+      ← CANCEL
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     GAME
+════════════════════════════════════════════ -->
 <div id="game" class="screen">
+  <div class="game-layout">
 
-  <!-- PLAY AREA -->
-  <div class="play-area">
+    <!-- ── INFO PANEL ────────────────────── -->
+    <div class="panel-info">
+      <div class="info-header">
+        <div class="info-logo">ကျားကွက်</div>
+        <div class="info-logo-en">MYANMAR TRADITIONAL DRAUGHTS</div>
+      </div>
 
-    <!-- Score -->
-    <div class="score-strip">
-      <span id="sname1">P1</span>
-      <span class="score-n" id="score1">0</span>
-      <span style="color:var(--txt-dim)">—</span>
-      <span class="score-n" id="score2">0</span>
-      <span id="sname2">P2</span>
+      <div class="info-body">
+
+        <!-- White Player -->
+        <div class="player-card card-white" id="card-white">
+          <div class="card-accent"></div>
+          <div class="card-name" id="name-white">White</div>
+          <div class="card-role">WHITE · ဖြူ · IVORY</div>
+          <div class="card-count-row">
+            <div class="card-count-num" id="count-white">12</div>
+            <div class="card-count-label">&nbsp;PIECES</div>
+          </div>
+          <div class="card-pips" id="pips-white"></div>
+        </div>
+
+        <!-- Black Player -->
+        <div class="player-card card-black" id="card-black">
+          <div class="card-accent"></div>
+          <div class="card-name" id="name-black">Black</div>
+          <div class="card-role">BLACK · မည်း · JADE</div>
+          <div class="card-count-row">
+            <div class="card-count-num" id="count-black">12</div>
+            <div class="card-count-label">&nbsp;PIECES</div>
+          </div>
+          <div class="card-pips" id="pips-black"></div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-card">
+          <div class="status-turn-row">
+            <div class="status-turn-dot" id="turn-dot"></div>
+            <div class="status-turn-text" id="turn-label">LOADING...</div>
+          </div>
+          <div class="status-message" id="status-msg">Connecting to game server...</div>
+        </div>
+
+        <!-- HUFF Section -->
+        <div class="huff-section" id="huff-section">
+          <button class="btn-huff" onclick="doHuff()">⚡ &nbsp; HUFF THE PIECE</button>
+          <div class="huff-note">
+            မဖမ်းဘဲ ရွေ့သွားတဲ့ piece ကို ဖယ်ရှားပါ<br>
+            Opponent failed to capture · Remove their piece
+          </div>
+        </div>
+
+      </div>
+
+      <div class="info-footer">
+        <div class="room-chip" onclick="copyGameId()">
+          <div class="room-chip-label">ROOM ID</div>
+          <div class="room-chip-value" id="room-id-chip">——</div>
+          <div style="font-size:10px;opacity:0.3;">📋</div>
+        </div>
+        <button class="btn-primary btn-outline-gold" style="font-size:9px;padding:9px;letter-spacing:3px;" onclick="backToLobby()">
+          ← LEAVE GAME
+        </button>
+      </div>
     </div>
 
-    <!-- Players -->
-    <div class="players-bar">
-      <div class="player-card" id="pc1">
-        <div class="pc-row"><span class="dot dot-y"></span><span class="pc-name" id="pname1">P1</span></div>
-        <div class="pc-count" id="pcount1">ကျား: 12</div>
-      </div>
-      <div class="mid-col">
-        <div class="vs-lbl">VS</div>
-        <div class="timer" id="timer">60</div>
-      </div>
-      <div class="player-card" id="pc2">
-        <div class="pc-row"><span class="dot dot-b"></span><span class="pc-name" id="pname2">P2</span></div>
-        <div class="pc-count" id="pcount2">ကျား: 12</div>
-      </div>
-    </div>
-
-    <!-- Status -->
-    <div class="status-bar" id="status">ကစားနေဆဲ...</div>
-
-    <!-- Board -->
-    <div class="board-wrap">
-      <div class="board-frame">
-        <div class="board-inner">
+    <!-- ── BOARD ──────────────────────────── -->
+    <div class="board-area">
+      <div class="board-container">
+        <div class="corner-br"></div>
+        <div class="corner-bl"></div>
+        <div class="board-frame">
           <div id="board"></div>
-          <svg id="arrow-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
       </div>
     </div>
 
-    <!-- Move log -->
-    <div class="move-log" id="move-log"></div>
+    <!-- ── CHAT PANEL ─────────────────────── -->
+    <div class="panel-chat">
+      <div class="chat-header">
+        <div class="chat-icon-wrap">💬</div>
+        <div class="chat-header-info">
+          <div class="chat-title">LIVE CHAT</div>
+          <div class="chat-subtitle">ဂိမ်းအတွင်း စကားပြော</div>
+        </div>
+        <div class="live-badge">
+          <div class="live-dot"></div> LIVE
+        </div>
+      </div>
 
-    <!-- Buttons -->
-    <div class="game-btns">
-      <button class="btn btn-ghost" onclick="ui.goLobby()">🏠 ထွက်</button>
-      <button class="btn btn-ghost" onclick="ui.offerDraw()">🤝 သရေ</button>
-      <button class="btn btn-ghost" onclick="ui.resetGame()">🔄 ပြန်စပါ</button>
+      <div id="chat-messages"></div>
+
+      <div class="chat-input-area">
+        <div class="emoji-strip">
+          <button class="emoji-pill" onclick="addEmoji('😄')">😄</button>
+          <button class="emoji-pill" onclick="addEmoji('👏')">👏</button>
+          <button class="emoji-pill" onclick="addEmoji('😤')">😤</button>
+          <button class="emoji-pill" onclick="addEmoji('😈')">😈</button>
+          <button class="emoji-pill" onclick="addEmoji('💀')">💀</button>
+          <button class="emoji-pill" onclick="addEmoji('🔥')">🔥</button>
+          <button class="emoji-pill" onclick="addEmoji('🏆')">🏆</button>
+        </div>
+        <div class="chat-row">
+          <textarea class="chat-textarea" id="chat-input"
+            placeholder="Message · စာပိုး..."
+            maxlength="120" rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}">
+          </textarea>
+          <button class="chat-send" onclick="sendChat()">➤</button>
+        </div>
+      </div>
     </div>
 
-  </div>
-
-  <!-- CHAT PANEL -->
-  <div class="chat-panel">
-    <div class="chat-header">💬 Chat</div>
-    <div class="chat-messages" id="chat-msgs"></div>
-    <div class="chat-input-row">
-      <input class="chat-inp" id="chat-inp" type="text" placeholder="စာရိုက်ပါ..." maxlength="120"
-             onkeydown="if(event.key==='Enter')ui.sendChat()">
-      <button class="chat-send" onclick="ui.sendChat()">▶</button>
-    </div>
-  </div>
-
+  </div><!-- end game-layout -->
 </div>
 
-<!-- WIN MODAL -->
+<!-- ════════════════════════════════════════════
+     WIN MODAL
+════════════════════════════════════════════ -->
 <div class="overlay" id="win-overlay">
-  <div class="modal">
-    <div class="modal-icon" id="win-icon">🏆</div>
-    <h2 id="win-title">နိုင်သည်!</h2>
-    <p id="win-msg">ဂုဏ်ယူပါသည်!</p>
-    <button class="btn btn-gold" onclick="ui.resetGame()" style="margin-bottom:8px">🔄 ထပ်ကစားပါ</button>
-    <button class="btn btn-ghost" onclick="ui.goLobby()">🏠 ထွက်ပါ</button>
+  <div class="win-modal">
+    <span class="win-medal" id="win-medal">🏆</span>
+    <div class="win-title" id="win-title">VICTORY</div>
+    <div class="win-subtitle" id="win-subtitle">You have conquered the board!</div>
+    <button class="btn-primary btn-gold-fill" onclick="backToLobby()" style="max-width:220px;margin:0 auto;">
+      ⟳ &nbsp; PLAY AGAIN
+    </button>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- ══════════════════════════════════
-     FIREBASE
-══════════════════════════════════ -->
+<!-- ════════════════════════════════════════════
+     FIREBASE + GAME LOGIC
+════════════════════════════════════════════ -->
 <script type="module">
-import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, onValue, update, push, remove }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, push, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const cfg = {
+/* ── Firebase init ─────────────────────────── */
+const app = initializeApp({
   apiKey:            "AIzaSyC-LM-rRPfgxIlYH9fpuZwUkSCCOPidg5g",
   authDomain:        "kyarkwat-57298.firebaseapp.com",
   databaseURL:       "https://kyarkwat-57298-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId:         "kyarkwat-57298",
   storageBucket:     "kyarkwat-57298.firebasestorage.app",
   messagingSenderId: "143473069573",
-  appId:             "1:143473069573:web:127d6c9320195f10afd66c",
-  measurementId:     "G-J0XHCRTFJ1"
-};
-const app = initializeApp(cfg);
-getAnalytics(app);
+  appId:             "1:143473069573:web:127d6c9320195f10afd66c"
+});
 const db = getDatabase(app);
-window.FB = { db, ref, set, get, onValue, update, push, remove };
-console.log("✅ Firebase ready");
-</script>
 
-<!-- ══════════════════════════════════
-     GAME ENGINE
-══════════════════════════════════ -->
-<script>
-"use strict";
+/* ── Game state ────────────────────────────── */
+let gameId    = null;
+let myColor   = null;   // 'white' | 'black'
+let myName    = '';
+let gameRef   = null;
+let chatRef   = null;
+let unsubGame = null;
+let unsubChat = null;
 
-/* ════════════════════════════════════
-   CONSTANTS
-════════════════════════════════════ */
-const SZ   = 8;
-const TURN_SECS = 60;
-const DRAW_LIMIT = 40; // no-capture turns before draw
+let board           = [];      // [8][8]  null | {color, king, id}
+let currentTurn     = 'white';
+let huffablePiece   = null;    // {row,col} | null
+let selectedCell    = null;    // {row,col} | null
+let validMoves      = [];      // [{row,col,type,capturedFirst,...}]
+let gameOver        = false;
+let forcedCaptures  = [];      // [{r,c,paths,maxCaptures}]
+let chainCapture    = null;    // {row,col} | null   — piece mid-chain
+let prevCounts      = { white:12, black:12 };
 
-// Piece values
-const EMPTY = 0;
-const YEL   = 1;  // Yellow (player 1, starts bottom)
-const BLU   = 2;  // Blue   (player 2, starts top)
-const YELK  = 3;  // Yellow King
-const BLUK  = 4;  // Blue King
-
-/* ════════════════════════════════════
-   BOARD ENGINE
-════════════════════════════════════ */
-const Engine = (() => {
-
-  // Helpers
-  const isY  = p => p === YEL  || p === YELK;
-  const isB  = p => p === BLU  || p === BLUK;
-  const isK  = p => p === YELK || p === BLUK;
-  const inBd = (r,c) => r >= 0 && r < SZ && c >= 0 && c < SZ;
-  const enemy = (me, p) => (isY(me) ? isB(p) : isY(p));
-
-  /** Clone board */
-  const clone = b => b.map(r => [...r]);
-
-  /** Fresh starting board */
-  function initBoard() {
-    const b = Array.from({length: SZ}, () => Array(SZ).fill(EMPTY));
-    for (let r = 0; r < 3; r++)
-      for (let c = 0; c < SZ; c++)
-        if ((r + c) % 2 === 1) b[r][c] = BLU;
-    for (let r = 5; r < SZ; r++)
-      for (let c = 0; c < SZ; c++)
-        if ((r + c) % 2 === 1) b[r][c] = YEL;
-    return b;
+/* ══════════════════════════════════════════════
+   BOARD INITIALIZATION
+══════════════════════════════════════════════ */
+function initBoard() {
+  board = Array(8).fill(null).map(() => Array(8).fill(null));
+  let wi = 0, bi = 0;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (isDark(r, c)) {
+        if (r < 3)      board[r][c] = { color: 'black', king: false, id: 'b' + bi++ };
+        else if (r > 4) board[r][c] = { color: 'white', king: false, id: 'w' + wi++ };
+      }
+    }
   }
+}
 
-  /**
-   * Get all CAPTURE CHAINS starting from piece at (r,c).
-   * Returns array of move-chains, each chain = [{from,to,captured},...].
-   * Implements Maximum Capture Rule by returning only chains with max length.
-   */
-  function getCaptureChains(board, r, c, visited = new Set(), depth = 0) {
-    const p = board[r][c];
-    if (!p) return [];
+function isDark(r, c) { return (r + c) % 2 === 1; }
 
-    const king = isK(p);
-    const dirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
-    let chains = [];
+/* ══════════════════════════════════════════════
+   MOVE ENGINE — 100% accurate Myanmar rules
+══════════════════════════════════════════════ */
 
-    for (const [dr, dc] of dirs) {
-      // King: can jump over ANY distance, so scan along the diagonal
-      const maxStep = king ? SZ : 1;
-      let foundEnemy = null;
-      let enemyR = -1, enemyC = -1;
+/** Simple (non-capture) moves for piece at (r,c) on board b */
+function getSimpleMoves(r, c, b = board) {
+  const p = b[r][c];
+  if (!p) return [];
+  const moves = [];
 
-      for (let step = 1; step <= maxStep; step++) {
-        const mr = r + dr * step;
-        const mc = c + dc * step;
-        if (!inBd(mr, mc)) break;
+  if (p.king) {
+    // King: slides diagonally any distance
+    for (const [dr, dc] of [[-1,-1],[-1,1],[1,-1],[1,1]]) {
+      let nr = r + dr, nc = c + dc;
+      while (inBounds(nr, nc)) {
+        if (!b[nr][nc]) moves.push({ row: nr, col: nc, type: 'move', path: [] });
+        else break;
+        nr += dr; nc += dc;
+      }
+    }
+  } else {
+    // Pawn: forward only
+    const dir = p.color === 'white' ? -1 : 1;
+    for (const dc of [-1, 1]) {
+      const nr = r + dir, nc = c + dc;
+      if (inBounds(nr, nc) && !b[nr][nc])
+        moves.push({ row: nr, col: nc, type: 'move', path: [] });
+    }
+  }
+  return moves;
+}
 
-        const cell = board[mr][mc];
-        if (cell === EMPTY) {
-          if (foundEnemy) {
-            // Landing square after enemy: valid capture
-            const capKey = `${enemyR},${enemyC}`;
-            if (visited.has(capKey)) {
-              // Can't capture same piece twice in chain
-              if (!king) break;
-              continue;
-            }
+function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 
-            // Apply this jump tentatively
-            const nb = clone(board);
-            nb[r][c] = EMPTY;
-            nb[mr][mc] = p;
-            nb[enemyR][enemyC] = EMPTY;
+/**
+ * Recursive capture path finder.
+ * Returns array of capture paths; each path is array of
+ * { captured:{r,c}, landRow, landCol }
+ */
+function findCapturePaths(r, c, piece, visited, tb) {
+  const dirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
+  const all = [];
 
-            const newVisited = new Set(visited);
-            newVisited.add(capKey);
+  for (const [dr, dc] of dirs) {
 
-            const step1 = { from:[r,c], to:[mr,mc], cap:[enemyR,enemyC] };
+    if (piece.king) {
+      // King: slide to find an opponent, then land anywhere beyond
+      let nr = r + dr, nc = c + dc;
+      while (inBounds(nr, nc)) {
+        const t = tb[nr][nc];
+        if (t) {
+          if (t.color !== piece.color) {
+            const ck = `${nr},${nc}`;
+            if (!visited.has(ck)) {
+              let lr = nr + dr, lc = nc + dc;
+              while (inBounds(lr, lc) && !tb[lr][lc]) {
+                const nb  = deepCopy(tb);
+                const mp  = { ...nb[r][c] };
+                nb[r][c]  = null;
+                nb[nr][nc]= null;
+                nb[lr][lc]= mp;
+                const nv  = new Set(visited); nv.add(ck);
+                const sub = findCapturePaths(lr, lc, mp, nv, nb);
 
-            // Recurse for further captures
-            const further = getCaptureChains(nb, mr, mc, newVisited, depth + 1);
-            if (further.length > 0) {
-              // Extend each further chain with this step
-              for (const chain of further) {
-                chains.push([step1, ...chain]);
+                if (!sub.length) {
+                  all.push([{ captured: { r: nr, c: nc }, landRow: lr, landCol: lc }]);
+                } else {
+                  for (const s of sub)
+                    all.push([{ captured: { r: nr, c: nc }, landRow: lr, landCol: lc }, ...s]);
+                }
+                lr += dr; lc += dc;
               }
-            } else {
-              // No further capture: this is a terminal chain
-              chains.push([step1]);
             }
-            // King can continue scanning past landing squares
-            if (!king) break;
           }
-          // Empty square before enemy: king can keep scanning
-          if (!foundEnemy && king) continue;
-          if (!foundEnemy) break;
-        } else if (enemy(p, cell) && !foundEnemy) {
-          // Found first enemy
-          foundEnemy = cell;
-          enemyR = mr; enemyC = mc;
-        } else {
-          // Blocked
-          break;
+          break; // blocked
         }
+        nr += dr; nc += dc;
       }
-    }
-
-    // Maximum Capture Rule: keep only chains that capture the most pieces
-    if (chains.length > 1) {
-      const maxLen = Math.max(...chains.map(c => c.length));
-      chains = chains.filter(c => c.length === maxLen);
-    }
-
-    return chains;
-  }
-
-  /**
-   * Get regular (non-capture) moves for piece at (r,c).
-   * Returns array of {from, to, cap:null}
-   */
-  function getRegularMoves(board, r, c) {
-    const p = board[r][c];
-    if (!p) return [];
-    const king = isK(p);
-    const moves = [];
-    // Direction: yellow goes up (dr=-1), blue goes down (dr=+1), king both
-    const drs = [];
-    if (isY(p) || king) drs.push(-1);
-    if (isB(p) || king) drs.push(1);
-    const maxStep = king ? SZ : 1;
-
-    for (const dr of drs) {
-      for (const dc of [-1, 1]) {
-        for (let step = 1; step <= maxStep; step++) {
-          const nr = r + dr * step;
-          const nc = c + dc * step;
-          if (!inBd(nr, nc)) break;
-          if (board[nr][nc] !== EMPTY) break;
-          moves.push({ from:[r,c], to:[nr,nc], cap:null, chain:null });
-        }
-      }
-    }
-    return moves;
-  }
-
-  /**
-   * All legal moves for a color.
-   * Enforces mandatory capture + maximum capture rule.
-   */
-  function allLegalMoves(board, color) {
-    const mine = color === YEL ? [YEL, YELK] : [BLU, BLUK];
-    let allChains = [];
-
-    for (let r = 0; r < SZ; r++) {
-      for (let c = 0; c < SZ; c++) {
-        if (!mine.includes(board[r][c])) continue;
-        const chains = getCaptureChains(board, r, c);
-        allChains.push(...chains.map(ch => ({ piece:[r,c], chain:ch })));
-      }
-    }
-
-    if (allChains.length > 0) {
-      // Maximum Capture across ALL pieces (global maximum)
-      const globalMax = Math.max(...allChains.map(a => a.chain.length));
-      allChains = allChains.filter(a => a.chain.length === globalMax);
-      return allChains.map(a => ({
-        from: a.chain[0].from,
-        to:   a.chain[a.chain.length - 1].to,
-        cap:  a.chain[0].cap,
-        chain: a.chain
-      }));
-    }
-
-    // No captures: regular moves
-    let moves = [];
-    for (let r = 0; r < SZ; r++) {
-      for (let c = 0; c < SZ; c++) {
-        if (!mine.includes(board[r][c])) continue;
-        moves.push(...getRegularMoves(board, r, c));
-      }
-    }
-    return moves;
-  }
-
-  /**
-   * Legal moves for a specific piece (respecting mandatory capture + multi-jump).
-   * inMultiJump: if not null, only capture moves from that piece.
-   */
-  function legalForPiece(board, r, c, inMultiJump, multiJumpCaptured) {
-    const p = board[r][c];
-    if (!p) return [];
-    const color = isY(p) ? YEL : BLU;
-
-    if (inMultiJump) {
-      // Only further captures from this piece, excluding already-captured squares
-      const visited = new Set(multiJumpCaptured.map(([cr,cc]) => `${cr},${cc}`));
-      const chains = getCaptureChains(board, r, c, visited);
-      return chains.map(ch => ({
-        from: ch[0].from,
-        to:   ch[ch.length - 1].to,
-        cap:  ch[0].cap,
-        chain: ch
-      }));
-    }
-
-    // Check if any mandatory capture exists for this color
-    const allMoves = allLegalMoves(board, color);
-    const hasCapture = allMoves.some(m => m.cap !== null);
-    if (hasCapture) {
-      // Only capture moves for THIS piece
-      const chains = getCaptureChains(board, r, c);
-      if (!chains.length) return []; // this piece can't capture
-      const globalMaxLen = Math.max(...allMoves.map(m => m.chain ? m.chain.length : 1));
-      const filtered = chains.filter(ch => ch.length === globalMaxLen);
-      return filtered.map(ch => ({
-        from: ch[0].from,
-        to:   ch[ch.length-1].to,
-        cap:  ch[0].cap,
-        chain: ch
-      }));
-    }
-
-    return getRegularMoves(board, r, c);
-  }
-
-  /**
-   * Apply ONE step of a chain to the board.
-   */
-  function applyStep(board, step) {
-    const nb = clone(board);
-    const [fr, fc] = step.from;
-    const [tr, tc] = step.to;
-    const p = nb[fr][fc];
-    nb[tr][tc] = p;
-    nb[fr][fc] = EMPTY;
-    if (step.cap) {
-      const [cr, cc] = step.cap;
-      nb[cr][cc] = EMPTY;
-    }
-    // King promotion (only after full move resolves, but mark here too)
-    if (p === YEL && tr === 0)       nb[tr][tc] = YELK;
-    if (p === BLU && tr === SZ - 1)  nb[tr][tc] = BLUK;
-    return nb;
-  }
-
-  /**
-   * Apply full chain to board.
-   */
-  function applyChain(board, chain) {
-    let b = board;
-    for (const step of chain) b = applyStep(b, step);
-    return b;
-  }
-
-  /**
-   * Count pieces.
-   */
-  function count(board) {
-    let y = 0, b = 0;
-    for (let r = 0; r < SZ; r++)
-      for (let c = 0; c < SZ; c++) {
-        if (isY(board[r][c])) y++;
-        else if (isB(board[r][c])) b++;
-      }
-    return { y, b };
-  }
-
-  return { initBoard, allLegalMoves, legalForPiece, applyStep, applyChain, count, isY, isB, isK, clone };
-})();
-
-/* ════════════════════════════════════
-   AI ENGINE  (Minimax + Alpha-Beta)
-════════════════════════════════════ */
-const AI = (() => {
-
-  function evaluate(board) {
-    let score = 0;
-    for (let r = 0; r < SZ; r++) {
-      for (let c = 0; c < SZ; c++) {
-        const p = board[r][c];
-        if (!p) continue;
-        const k = Engine.isK(p);
-        const isBlue = Engine.isB(p);
-        const val = k ? 3.5 : 1;
-        const advance = k ? 0 : (isBlue ? r * 0.1 : (SZ-1-r) * 0.1);
-        const center = (c >= 2 && c <= 5) ? 0.12 : 0;
-        score += isBlue ? (val + advance + center) : -(val + advance + center);
-      }
-    }
-    return score;
-  }
-
-  function minimax(board, depth, alpha, beta, maxing) {
-    const { y, b } = Engine.count(board);
-    if (!b) return -9999;
-    if (!y) return  9999;
-    const color = maxing ? BLU : YEL;
-    const moves = Engine.allLegalMoves(board, color);
-    if (!moves.length) return maxing ? -9999 : 9999;
-    if (!depth) return evaluate(board);
-
-    if (maxing) {
-      let v = -Infinity;
-      for (const mv of moves) {
-        const nb = mv.chain ? Engine.applyChain(board, mv.chain) : Engine.applyStep(board, { from:mv.from, to:mv.to, cap:mv.cap });
-        v = Math.max(v, minimax(nb, depth-1, alpha, beta, false));
-        alpha = Math.max(alpha, v);
-        if (beta <= alpha) break;
-      }
-      return v;
     } else {
-      let v = Infinity;
-      for (const mv of moves) {
-        const nb = mv.chain ? Engine.applyChain(board, mv.chain) : Engine.applyStep(board, { from:mv.from, to:mv.to, cap:mv.cap });
-        v = Math.min(v, minimax(nb, depth-1, alpha, beta, true));
-        beta = Math.min(beta, v);
-        if (beta <= alpha) break;
+      // Pawn: jump exactly one opponent
+      const mr = r + dr, mc = c + dc;
+      const lr = r + 2*dr, lc = c + 2*dc;
+      if (!inBounds(mr, mc) || !inBounds(lr, lc)) continue;
+      const t = tb[mr][mc];
+      if (t && t.color !== piece.color && !tb[lr][lc]) {
+        const ck = `${mr},${mc}`;
+        if (!visited.has(ck)) {
+          const nb  = deepCopy(tb);
+          const mp  = { ...nb[r][c] };
+          nb[r][c]  = null;
+          nb[mr][mc]= null;
+          nb[lr][lc]= mp;
+          // Promotion during chain
+          if ((mp.color === 'white' && lr === 0) || (mp.color === 'black' && lr === 7))
+            nb[lr][lc].king = true;
+          const nv  = new Set(visited); nv.add(ck);
+          const sub = findCapturePaths(lr, lc, nb[lr][lc], nv, nb);
+
+          if (!sub.length) {
+            all.push([{ captured: { r: mr, c: mc }, landRow: lr, landCol: lc }]);
+          } else {
+            for (const s of sub)
+              all.push([{ captured: { r: mr, c: mc }, landRow: lr, landCol: lc }, ...s]);
+          }
+        }
       }
-      return v;
+    }
+  }
+  return all;
+}
+
+function deepCopy(b) { return b.map(row => row.map(c => c ? { ...c } : null)); }
+
+/** Best (maximum) capture paths for piece at (r,c) */
+function bestCapturePaths(r, c, b = board) {
+  const p = b[r][c];
+  if (!p) return [];
+  const paths = findCapturePaths(r, c, p, new Set(), deepCopy(b));
+  if (!paths.length) return [];
+  const mx = Math.max(...paths.map(p => p.length));
+  return paths.filter(p => p.length === mx);
+}
+
+/** All pieces of color that MUST capture (max capture rule) */
+function computeForcedCaptures(color) {
+  const candidates = [];
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    if (board[r][c]?.color === color) {
+      const paths = bestCapturePaths(r, c);
+      if (paths.length) candidates.push({ r, c, paths, maxCaptures: paths[0].length });
+    }
+  }
+  if (!candidates.length) return [];
+  const globalMax = Math.max(...candidates.map(x => x.maxCaptures));
+  return candidates.filter(x => x.maxCaptures === globalMax);
+}
+
+/** Convert capture paths into first-step clickable moves */
+function movesFromPaths(paths) {
+  const seen = new Set(), out = [];
+  for (const path of paths) {
+    const f   = path[0];
+    const key = `${f.landRow},${f.landCol}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      out.push({
+        row:          f.landRow,
+        col:          f.landCol,
+        type:         'capture',
+        path,
+        capturedFirst: f.captured
+      });
+    }
+  }
+  return out;
+}
+
+/* ══════════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════════ */
+function renderBoard() {
+  const el = document.getElementById('board');
+  el.innerHTML = '';
+
+  const validSet   = new Set();
+  const captureSet = new Set();
+  for (const m of validMoves) {
+    (m.type === 'capture' ? captureSet : validSet).add(`${m.row},${m.col}`);
+  }
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell ' + (isDark(r, c) ? 'cell-dark' : 'cell-light');
+
+      const key   = `${r},${c}`;
+      const isSel = (selectedCell && selectedCell.row === r && selectedCell.col === c)
+                 || (chainCapture  && chainCapture.row  === r && chainCapture.col  === c);
+
+      if      (isSel)              cell.classList.add('cell-selected');
+      else if (captureSet.has(key)) cell.classList.add('cell-capture');
+      else if (validSet.has(key))   cell.classList.add('cell-move');
+
+      const piece = board[r][c];
+      if (piece) {
+        const p = document.createElement('div');
+        p.className = 'piece '
+          + (piece.color === 'white' ? 'piece-white' : 'piece-black')
+          + (piece.king ? ' piece-king' : '');
+        if (huffablePiece && huffablePiece.row === r && huffablePiece.col === c)
+          p.classList.add('piece-huffable');
+        if (isSel)
+          p.classList.add('piece-selected');
+        cell.appendChild(p);
+      }
+
+      cell.addEventListener('click', () => handleCellClick(r, c));
+      el.appendChild(cell);
     }
   }
 
-  function getBestMove(board, depth = 4) {
-    const moves = Engine.allLegalMoves(board, BLU);
-    if (!moves.length) return null;
-    let best = null, bestScore = -Infinity;
-    for (const mv of moves) {
-      const nb = mv.chain ? Engine.applyChain(board, mv.chain) : Engine.applyStep(board, { from:mv.from, to:mv.to, cap:mv.cap });
-      const sc = minimax(nb, depth-1, -Infinity, Infinity, false);
-      if (sc > bestScore) { bestScore = sc; best = mv; }
+  updateCounters();
+  updatePips();
+  updateActiveTurnCards();
+}
+
+function updateCounters() {
+  let w = 0, b = 0;
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    if (board[r][c]) { board[r][c].color === 'white' ? w++ : b++; }
+  }
+  const we = document.getElementById('count-white');
+  const be = document.getElementById('count-black');
+  we.textContent = w;
+  be.textContent = b;
+  if (w < prevCounts.white) flashEl(we);
+  if (b < prevCounts.black) flashEl(be);
+  prevCounts = { white: w, black: b };
+}
+
+function flashEl(el) {
+  el.style.cssText = 'color:#e74c3c;transform:scale(1.4);transition:color .15s,transform .15s;';
+  setTimeout(() => { el.style.cssText = ''; }, 500);
+}
+
+function updatePips() {
+  let w = 0, b = 0;
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    if (board[r][c]) { board[r][c].color === 'white' ? w++ : b++; }
+  }
+  const make = (count, color, id) => {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    for (let i = 0; i < 12; i++) {
+      const d = document.createElement('div');
+      d.className = 'pip ' + (i < count ? 'pip-' + color : 'pip-lost');
+      el.appendChild(d);
     }
-    return best;
+  };
+  make(w, 'w', 'pips-white');
+  make(b, 'b', 'pips-black');
+}
+
+function updateActiveTurnCards() {
+  document.getElementById('card-white').classList.toggle('is-active', currentTurn === 'white');
+  document.getElementById('card-black').classList.toggle('is-active', currentTurn === 'black');
+}
+
+function updateStatus() {
+  const tl  = document.getElementById('turn-label');
+  const sm  = document.getElementById('status-msg');
+  const huf = document.getElementById('huff-section');
+  const dot = document.getElementById('turn-dot');
+
+  if (gameOver) {
+    tl.textContent = 'GAME OVER';
+    sm.textContent = '';
+    huf.classList.remove('visible');
+    return;
   }
 
-  return { getBestMove };
-})();
+  const isMine = currentTurn === myColor;
+  tl.textContent = isMine ? 'YOUR TURN · သင့်အလှည့်' : 'OPPONENT TURN';
+  dot.style.background = isMine ? 'var(--gold)' : 'var(--jade3)';
 
-/* ════════════════════════════════════
-   GAME STATE
-════════════════════════════════════ */
-let G = {
-  board:    Engine.initBoard(),
-  turn:     YEL,
-  selR:     null,
-  selC:     null,
-  validMvs: [],            // legal moves for selected piece
-  multiJump: null,        // {r, c, captured:[]} if in multi-jump
-  noCapTurns: 0,
-  over:     false,
-  history:  []
+  if (huffablePiece && isMine) {
+    huf.classList.add('visible');
+    sm.textContent = 'HUFF available! Remove or make your move.';
+  } else {
+    huf.classList.remove('visible');
+    if      (chainCapture)       sm.textContent = 'Chain capture! Continue capturing.';
+    else if (isMine && forcedCaptures.length)
+      sm.textContent = `⚠ MUST CAPTURE! Max ${forcedCaptures[0].maxCaptures} piece(s).`;
+    else if (isMine)             sm.textContent = 'Select a piece to move.';
+    else                         sm.textContent = 'Waiting for opponent...';
+  }
+}
+
+/* ══════════════════════════════════════════════
+   INTERACTION
+══════════════════════════════════════════════ */
+function handleCellClick(r, c) {
+  if (gameOver || currentTurn !== myColor) return;
+
+  // ── Chain capture in progress ──
+  if (chainCapture) {
+    const vm = validMoves.find(m => m.row === r && m.col === c);
+    if (vm) executeCapture(chainCapture.row, chainCapture.col, vm);
+    return;
+  }
+
+  // ── Click on a valid destination ──
+  if (selectedCell) {
+    const vm = validMoves.find(m => m.row === r && m.col === c);
+    if (vm) {
+      if (vm.type === 'capture') executeCapture(selectedCell.row, selectedCell.col, vm);
+      else                       executeSimpleMove(selectedCell.row, selectedCell.col, r, c);
+      return;
+    }
+  }
+
+  // ── Select a piece ──
+  const piece = board[r][c];
+  if (piece && piece.color === myColor) {
+    if (forcedCaptures.length) {
+      const fc = forcedCaptures.find(f => f.r === r && f.c === c);
+      if (!fc) { pushSystemMsg('⚠ Must capture with a highlighted piece!'); return; }
+      selectedCell = { row: r, col: c };
+      validMoves   = movesFromPaths(fc.paths);
+    } else {
+      selectedCell = { row: r, col: c };
+      validMoves   = getSimpleMoves(r, c);
+    }
+  } else {
+    selectedCell = null;
+    validMoves   = [];
+  }
+
+  renderBoard();
+  updateStatus();
+}
+
+function executeSimpleMove(fr, fc, tr, tc) {
+  const hadForced = forcedCaptures.length > 0;
+  const p = board[fr][fc];
+  board[tr][tc] = p;
+  board[fr][fc] = null;
+
+  // Promotion
+  if ((p.color === 'white' && tr === 0) || (p.color === 'black' && tr === 7))
+    board[tr][tc].king = true;
+
+  const huffable = hadForced ? { row: tr, col: tc } : null;
+  selectedCell = null;
+  validMoves   = [];
+  pushStateToFirebase(board, oppColor(), huffable);
+}
+
+function executeCapture(fr, fc, move) {
+  const p = board[fr][fc];
+  board[move.capturedFirst.r][move.capturedFirst.c] = null;
+  board[fr][fc]       = null;
+  board[move.row][move.col] = p;
+
+  // Promotion
+  if ((p.color === 'white' && move.row === 0) || (p.color === 'black' && move.row === 7))
+    board[move.row][move.col].king = true;
+
+  // Check chain
+  const further = bestCapturePaths(move.row, move.col);
+  if (further.length) {
+    chainCapture   = { row: move.row, col: move.col };
+    selectedCell   = { row: move.row, col: move.col };
+    forcedCaptures = [{ r: move.row, c: move.col, paths: further, maxCaptures: further[0].length }];
+    validMoves     = movesFromPaths(further);
+    renderBoard();
+    updateStatus();
+    pushStateChain(board, myColor);
+  } else {
+    chainCapture = null;
+    selectedCell = null;
+    validMoves   = [];
+    pushStateToFirebase(board, oppColor(), null);
+  }
+}
+
+function oppColor() { return myColor === 'white' ? 'black' : 'white'; }
+
+/* ── HUFF ──────────────────────────────────── */
+window.doHuff = function() {
+  if (!huffablePiece || currentTurn !== myColor) return;
+  board[huffablePiece.row][huffablePiece.col] = null;
+  pushSystemMsg(`⚡ ${myName} huffed a piece!`);
+  huffablePiece = null;
+  pushStateHuff(board, myColor);
 };
 
-// Session / network
-let mode      = 'local'; // 'local' | 'ai' | 'online'
-let myColor   = YEL;
-let isMyTurn  = true;
-let roomId    = null;
-let p1Name    = 'ကစားသမား ၁';
-let p2Name    = 'ကစားသမား ၂';
-let scores    = { y: 0, b: 0 };
+window.addEmoji = function(e) {
+  const ta = document.getElementById('chat-input');
+  ta.value += e;
+  ta.focus();
+};
 
-// Timer
-let timerID   = null;
-let timeLeft  = TURN_SECS;
+/* ══════════════════════════════════════════════
+   WIN CHECK
+══════════════════════════════════════════════ */
+function checkWinner(b, nextTurn) {
+  // Count pieces
+  let cnt = 0;
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
+    if (b[r][c]?.color === nextTurn) cnt++;
+  if (!cnt) return nextTurn === 'white' ? 'black' : 'white';
 
-// Board pixel size (for SVG arrows)
-let cellPx    = 0;
-
-/* ════════════════════════════════════
-   RENDER ENGINE
-════════════════════════════════════ */
-function calcBoardSize() {
-  // Fit board in available play-area
-  const playArea = document.querySelector('.play-area');
-  if (!playArea) return 320;
-  const h = playArea.clientHeight || window.innerHeight;
-  const w = playArea.clientWidth  || window.innerWidth;
-  // Rough estimate: board is main element, leave room for other UI
-  const available = Math.min(w - 20, h - 220);
-  return Math.max(200, Math.min(available, 460));
-}
-
-function render() {
-  const boardEl = document.getElementById('board');
-  boardEl.innerHTML = '';
-
-  const size = calcBoardSize();
-  document.getElementById('board').style.cssText = `width:${size}px;height:${size}px`;
-  cellPx = size / SZ;
-
-  // Flip board for blue in online mode
-  const flip = (mode === 'online' && myColor === BLU);
-
-  for (let ri = 0; ri < SZ; ri++) {
-    for (let ci = 0; ci < SZ; ci++) {
-      const r = flip ? (SZ-1-ri) : ri;
-      const c = flip ? (SZ-1-ci) : ci;
-      const dark = (r + c) % 2 === 1;
-
-      const cell = document.createElement('div');
-      cell.className = 'cell ' + (dark ? 'dk' : 'lt');
-      cell.dataset.r = r;
-      cell.dataset.c = c;
-
-      // Selection highlight
-      if (G.selR === r && G.selC === c) cell.classList.add('sel');
-
-      // Valid move destination
-      const vm = dark && G.validMvs.some(m => m.to[0] === r && m.to[1] === c);
-      if (vm) {
-        cell.classList.add('vm');
-        cell.addEventListener('click', () => handleDestClick(r, c));
-      } else {
-        cell.addEventListener('click', () => handleCellClick(r, c));
-      }
-
-      // Piece
-      const p = G.board[r][c];
-      if (p !== EMPTY) {
-        const pe = document.createElement('div');
-        pe.className = 'piece ' + (Engine.isY(p) ? 'py' : 'pb') + (Engine.isK(p) ? ' king' : '');
-        if (G.selR === r && G.selC === c) pe.classList.add('lifted');
-        pe.addEventListener('click', ev => { ev.stopPropagation(); handlePieceClick(r, c); });
-        cell.appendChild(pe);
-      }
-
-      boardEl.appendChild(cell);
+  // Any legal move?
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    if (b[r][c]?.color === nextTurn) {
+      if (getSimpleMoves(r, c, b).length > 0) return null;
+      if (bestCapturePaths(r, c, b).length > 0) return null;
     }
   }
+  return nextTurn === 'white' ? 'black' : 'white';
+}
 
-  // Counts
-  const { y, b } = Engine.count(G.board);
-  document.getElementById('pcount1').textContent = `ကျား: ${y}`;
-  document.getElementById('pcount2').textContent = `ကျား: ${b}`;
-  document.getElementById('pc1').classList.toggle('active', G.turn === YEL);
-  document.getElementById('pc2').classList.toggle('active', G.turn === BLU);
+/* ══════════════════════════════════════════════
+   FIREBASE STATE PUSH
+══════════════════════════════════════════════ */
+const b2f = b => b.map(row => row.map(c => c || null));
+const f2b = fb => fb.map(row => row.map(c => c || null));
 
-  // Arrows after layout paint
-  requestAnimationFrame(() => {
-    const fc = boardEl.querySelector('.cell');
-    if (fc) cellPx = fc.getBoundingClientRect().width;
-    drawArrows(flip);
+async function pushStateToFirebase(b, next, huff) {
+  if (!gameRef) return;
+  const winner = checkWinner(b, next);
+  await set(ref(db, `games/${gameId}/state`), {
+    board:          b2f(b),
+    current_turn:   next,
+    huffable_piece: huff || null,
+    chain_capture:  null,
+    last_move:      Date.now(),
+    winner:         winner || null
   });
 }
 
-/* ════════════════════════════════════
-   SVG ARROWS  (V-shape + ✓ checkmark)
-════════════════════════════════════ */
-function drawArrows(flip) {
-  const svg = document.getElementById('arrow-svg');
-  svg.innerHTML = '';
-  if (G.selR === null || !G.validMvs.length || cellPx < 4) return;
-
-  const board = document.getElementById('board');
-  const br    = board.getBoundingClientRect();
-  const sr    = svg.getBoundingClientRect();
-  const ox    = br.left - sr.left;
-  const oy    = br.top  - sr.top;
-
-  const toVisual = (r, c) => ({
-    x: ox + ((flip ? SZ-1-c : c) + .5) * cellPx,
-    y: oy + ((flip ? SZ-1-r : r) + .5) * cellPx
+async function pushStateChain(b, same) {
+  if (!gameRef) return;
+  await set(ref(db, `games/${gameId}/state`), {
+    board:          b2f(b),
+    current_turn:   same,
+    huffable_piece: null,
+    chain_capture:  chainCapture,
+    last_move:      Date.now(),
+    winner:         null
   });
-
-  const { x: sx, y: sy } = toVisual(G.selR, G.selC);
-
-  for (const mv of G.validMvs) {
-    const { x: tx, y: ty } = toVisual(mv.to[0], mv.to[1]);
-
-    // V midpoint (apex slightly above mid)
-    const mx = (sx + tx) / 2;
-    const my = Math.min(sy, ty) + Math.abs(ty - sy) * 0.05;
-
-    const mkLine = (x1, y1, x2, y2) => {
-      const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      l.setAttribute('x1', x1); l.setAttribute('y1', y1);
-      l.setAttribute('x2', x2); l.setAttribute('y2', y2);
-      l.setAttribute('stroke', '#22dd44');
-      l.setAttribute('stroke-width', '2.5');
-      l.setAttribute('stroke-linecap', 'round');
-      l.setAttribute('opacity', '0.9');
-      return l;
-    };
-
-    svg.appendChild(mkLine(sx, sy, mx, my));
-    svg.appendChild(mkLine(mx, my, tx, ty));
-
-    // Circle at destination
-    const rad = cellPx * 0.2;
-    const ci = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    ci.setAttribute('cx', tx); ci.setAttribute('cy', ty); ci.setAttribute('r', rad);
-    ci.setAttribute('fill', '#22dd4433');
-    ci.setAttribute('stroke', '#22dd44');
-    ci.setAttribute('stroke-width', '2');
-    svg.appendChild(ci);
-
-    // Checkmark ✓
-    const ck = rad * 0.6;
-    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-    poly.setAttribute('points',
-      `${tx - ck},${ty} ${tx - ck*.2},${ty + ck*.7} ${tx + ck},${ty - ck*.7}`);
-    poly.setAttribute('stroke', '#22dd44');
-    poly.setAttribute('stroke-width', '2');
-    poly.setAttribute('fill', 'none');
-    poly.setAttribute('stroke-linecap', 'round');
-    poly.setAttribute('stroke-linejoin', 'round');
-    svg.appendChild(poly);
-  }
 }
 
-/* ════════════════════════════════════
-   INPUT HANDLERS
-════════════════════════════════════ */
-function canControl() {
-  if (G.over) return false;
-  if (mode === 'local') return true;
-  if (mode === 'ai')    return G.turn === YEL;
-  // online
-  return isMyTurn && G.turn === myColor;
+async function pushStateHuff(b, same) {
+  if (!gameRef) return;
+  await set(ref(db, `games/${gameId}/state`), {
+    board:          b2f(b),
+    current_turn:   same,
+    huffable_piece: null,
+    chain_capture:  null,
+    last_move:      Date.now(),
+    winner:         null
+  });
 }
 
-function handlePieceClick(r, c) {
-  if (!canControl()) return;
-  const p = G.board[r][c];
-  if (!p) return;
+/* ══════════════════════════════════════════════
+   FIREBASE LISTENER
+══════════════════════════════════════════════ */
+function applyState(state, players) {
+  board         = f2b(state.board);
+  currentTurn   = state.current_turn;
+  huffablePiece = state.huffable_piece || null;
+  chainCapture  = state.chain_capture  || null;
 
-  // Multi-jump: only allow the jumping piece
-  if (G.multiJump) {
-    if (r === G.multiJump.r && c === G.multiJump.c) selectPiece(r, c);
-    else toast('⚠️ ဆက်ဖမ်းနိုင်သောကျားကို ရွေးပါ!');
-    return;
-  }
-
-  // Must be my turn's color
-  if (mode === 'local') {
-    if (Engine.isY(p) !== (G.turn === YEL)) return;
-  } else if (mode === 'ai') {
-    if (!Engine.isY(p)) return;
-  } else {
-    if (myColor === YEL && !Engine.isY(p)) return;
-    if (myColor === BLU && !Engine.isB(p)) return;
-  }
-
-  selectPiece(r, c);
-}
-
-function selectPiece(r, c) {
-  const captured = G.multiJump ? G.multiJump.captured : [];
-  const legal = Engine.legalForPiece(G.board, r, c, G.multiJump, captured);
-
-  if (!legal.length) {
-    // Check if mandatory capture requires another piece
-    const allMvs = Engine.allLegalMoves(G.board, G.turn);
-    if (allMvs.some(m => m.cap)) {
-      toast('⚠️ ဒီကျားကို ရွေ့မရပါ — ဖမ်းနိုင်သောကျားကို ရွေးပါ!');
-    } else {
-      toast('⚠️ ဒီကျားကို ရွေ့၍မရပါ');
+  if (currentTurn === myColor && !chainCapture) {
+    forcedCaptures = computeForcedCaptures(myColor);
+    selectedCell   = null;
+    validMoves     = [];
+  } else if (chainCapture && currentTurn === myColor) {
+    const fc = bestCapturePaths(chainCapture.row, chainCapture.col);
+    forcedCaptures = fc.length
+      ? [{ r: chainCapture.row, c: chainCapture.col, paths: fc, maxCaptures: fc[0].length }]
+      : [];
+    if (fc.length) {
+      selectedCell = { row: chainCapture.row, col: chainCapture.col };
+      validMoves   = movesFromPaths(fc);
     }
-    return;
-  }
-
-  G.selR = r; G.selC = c;
-  G.validMvs = legal;
-  render();
-}
-
-function handleCellClick(r, c) {
-  const p = G.board[r][c];
-  if (p && canControl()) { handlePieceClick(r, c); return; }
-  // Deselect
-  if (G.selR !== null && !G.multiJump) {
-    G.selR = null; G.selC = null; G.validMvs = [];
-    render();
-  }
-}
-
-function handleDestClick(r, c) {
-  if (G.selR === null) return;
-  const mv = G.validMvs.find(m => m.to[0] === r && m.to[1] === c);
-  if (mv) executeMove(mv);
-}
-
-/* ════════════════════════════════════
-   EXECUTE MOVE
-════════════════════════════════════ */
-function executeMove(mv) {
-  const isCapture = mv.cap !== null;
-
-  if (isCapture) {
-    // Apply entire chain at once (Maximum Capture path)
-    G.board = Engine.applyChain(G.board, mv.chain);
-    G.noCapTurns = 0;
-    logMove(mv, true);
-    // Check for further captures (multi-jump should already be covered by chain,
-    // but keep multi-jump state clear since chain covers it fully)
-    G.multiJump = null;
   } else {
-    G.board = Engine.applyStep(G.board, { from: mv.from, to: mv.to, cap: null });
-    G.noCapTurns++;
-    logMove(mv, false);
-    G.multiJump = null;
+    forcedCaptures = [];
   }
 
-  G.selR = null; G.selC = null; G.validMvs = [];
+  if (state.winner) {
+    gameOver = true;
+    showWinModal(state.winner, players);
+  }
 
-  // Switch turn
-  G.turn = G.turn === YEL ? BLU : YEL;
+  if (players) {
+    document.getElementById('name-white').textContent = players.white?.name || 'White';
+    document.getElementById('name-black').textContent = players.black?.name || 'Black';
+  }
 
-  // Win / draw check
-  const { y, b } = Engine.count(G.board);
-  if (!b) { endGame(YEL); return; }
-  if (!y) { endGame(BLU); return; }
-  const nextMoves = Engine.allLegalMoves(G.board, G.turn);
-  if (!nextMoves.length) { endGame(G.turn === YEL ? BLU : YEL); return; }
-  if (G.noCapTurns >= DRAW_LIMIT) { endGame(null); return; } // draw
-
-  render();
-  updateTurnStatus();
-  resetTimer();
-
-  // Firebase sync
-  if (mode === 'online') pushFirebase();
-  // AI move
-  if (mode === 'ai' && G.turn === BLU) setTimeout(doAIMove, 700);
+  renderBoard();
+  updateStatus();
 }
 
-/* ════════════════════════════════════
-   AI MOVE
-════════════════════════════════════ */
-function doAIMove() {
-  if (G.over || G.turn !== BLU) return;
-  const mv = AI.getBestMove(G.board, 4);
-  if (!mv) return;
-  G.selR = mv.from[0]; G.selC = mv.from[1];
-  render();
-  setTimeout(() => executeMove(mv), 350);
-}
+/* ══════════════════════════════════════════════
+   LOBBY — create / join
+══════════════════════════════════════════════ */
+window.createGame = async function() {
+  myName   = document.getElementById('player-name').value.trim() || 'Player 1';
+  myColor  = 'white';
+  gameId   = generateRoomId();
+  gameRef  = ref(db, `games/${gameId}`);
+  chatRef  = ref(db, `games/${gameId}/chat`);
+  initBoard();
 
-/* ════════════════════════════════════
-   TIMER
-════════════════════════════════════ */
-function resetTimer() {
-  clearInterval(timerID);
-  timeLeft = TURN_SECS;
-  updateTimerEl();
-  timerID = setInterval(() => {
-    timeLeft--;
-    updateTimerEl();
-    if (timeLeft <= 0) {
-      clearInterval(timerID);
-      toast('⏰ အချိန်ကုန်သည်! လှည့်ပြောင်းသည်');
-      forfeitTurn();
+  await set(gameRef, {
+    players: { white: { name: myName } },
+    state: {
+      board:          b2f(board),
+      current_turn:   'white',
+      huffable_piece: null,
+      chain_capture:  null,
+      last_move:      Date.now(),
+      winner:         null
+    },
+    created: serverTimestamp()
+  });
+
+  document.getElementById('display-game-id').textContent = gameId;
+  document.getElementById('room-id-chip').textContent    = gameId;
+  window._currentRoomId = gameId;
+  showScreen('waiting');
+
+  // Wait for opponent
+  unsubGame = onValue(gameRef, snap => {
+    const d = snap.val();
+    if (d?.players?.black && document.getElementById('waiting').classList.contains('active')) {
+      launchGame(d);
     }
-  }, 1000);
-}
-
-function forfeitTurn() {
-  G.selR = null; G.selC = null; G.validMvs = []; G.multiJump = null;
-  G.turn = G.turn === YEL ? BLU : YEL;
-  render(); updateTurnStatus(); resetTimer();
-  if (mode === 'online') pushFirebase();
-  if (mode === 'ai' && G.turn === BLU) setTimeout(doAIMove, 700);
-}
-
-function updateTimerEl() {
-  const el = document.getElementById('timer');
-  el.textContent = timeLeft;
-  el.classList.toggle('urgent', timeLeft <= 10);
-}
-
-/* ════════════════════════════════════
-   STATUS / LOG
-════════════════════════════════════ */
-function setStatus(msg) { document.getElementById('status').textContent = msg; }
-
-function updateTurnStatus() {
-  if (G.over) return;
-  if (mode === 'local') {
-    setStatus(`🎮 ${G.turn === YEL ? p1Name : p2Name} ၏အလှည့် — ကျားကိုနှိပ်ပါ`);
-  } else if (mode === 'ai') {
-    setStatus(G.turn === YEL ? '🟡 သင့်အလှည့် — ကျားကိုနှိပ်ပါ' : '🔵 AI စဉ်းစားနေသည်...');
-  } else {
-    isMyTurn = G.turn === myColor;
-    setStatus(isMyTurn ? '🎯 သင့်အလှည့် — ကျားကိုနှိပ်ပါ' : '⏳ ဆန့်ကျင်ဘက်ကစားနေသည်...');
-  }
-}
-
-const COL = 'ABCDEFGH';
-function logMove(mv, capture) {
-  const f = COL[mv.from[1]] + (SZ - mv.from[0]);
-  const t = COL[mv.to[1]]   + (SZ - mv.to[0]);
-  const captureCount = mv.chain ? mv.chain.length : (capture ? 1 : 0);
-  G.history.push({
-    txt: `${f}→${t}${capture ? '×' + captureCount : ''}`,
-    col: G.turn === YEL ? 'y-mv' : 'b-mv'
   });
-  const el = document.getElementById('move-log');
-  el.innerHTML = '';
-  G.history.slice(-30).forEach(h => {
-    const s = document.createElement('span');
-    s.className = h.col; s.textContent = h.txt; el.appendChild(s);
-  });
-  el.scrollTop = el.scrollHeight;
-}
+};
 
-/* ════════════════════════════════════
-   END GAME
-════════════════════════════════════ */
-function endGame(winner) {
-  G.over = true;
-  clearInterval(timerID);
+window.joinGame = async function() {
+  const rawId = document.getElementById('join-game-id').value.trim().toUpperCase();
+  if (!rawId) { alert('Please enter a Room ID'); return; }
 
-  let icon, title, msg;
-  if (winner === null) {
-    icon = '🤝'; title = 'သရေ!'; msg = `ဖမ်းမှု ${DRAW_LIMIT} ကြိမ်တွင် မပြောင်းလဲသဖြင့် သရေကျသည်`;
-  } else {
-    const yw = winner === YEL;
-    if (yw) scores.y++; else scores.b++;
-    document.getElementById('score1').textContent = scores.y;
-    document.getElementById('score2').textContent = scores.b;
-    const wName = yw ? p1Name : p2Name;
-    icon  = yw ? '🟡' : '🔵';
-    title = `${wName} နိုင်သည်!`;
-    msg   = mode === 'ai'
-      ? (yw ? '🎉 AI ကိုနိုင်သည်! ဂုဏ်ယူပါသည်!' : '💪 AI ကနိုင်သည်! ထပ်ကြိုးစားပါ!')
-      : '🏆 ကောင်းသောကစားမှု!';
-  }
+  myName   = document.getElementById('player-name').value.trim() || 'Player 2';
+  myColor  = 'black';
+  gameId   = rawId;
+  gameRef  = ref(db, `games/${gameId}`);
+  chatRef  = ref(db, `games/${gameId}/chat`);
 
-  document.getElementById('win-icon').textContent  = icon;
-  document.getElementById('win-title').textContent = title;
-  document.getElementById('win-msg').textContent   = msg;
-  document.getElementById('win-overlay').classList.add('show');
-  render();
-}
+  const snap = await get(gameRef);
+  if (!snap.exists()) { alert('Game not found! Check the Room ID.'); return; }
+  const d = snap.val();
+  if (d.players?.black) { alert('This game is already full!'); return; }
 
-/* ════════════════════════════════════
-   FIREBASE MULTIPLAYER
-════════════════════════════════════ */
-function genCode() { return Math.random().toString(36).substr(2,6).toUpperCase(); }
-let fbUnsub = null;
+  await set(ref(db, `games/${gameId}/players/black`), { name: myName });
+  document.getElementById('room-id-chip').textContent = gameId;
+  window._currentRoomId = gameId;
+  launchGame(d);
+};
 
-function pushFirebase() {
-  if (!window.FB || !roomId) return;
-  const { db, ref, set } = window.FB;
-  set(ref(db, `rooms/${roomId}/gs`), {
-    board: G.board, turn: G.turn,
-    noCapTurns: G.noCapTurns, t: Date.now()
-  });
-  isMyTurn = false;
-}
+function launchGame(initialData) {
+  if (unsubGame) { unsubGame(); unsubGame = null; }
+  showScreen('game');
 
-function listenFirebase() {
-  if (!window.FB || !roomId) return;
-  const { db, ref, onValue } = window.FB;
-  fbUnsub = onValue(ref(db, `rooms/${roomId}/gs`), snap => {
+  if (initialData.state) applyState(initialData.state, initialData.players);
+
+  // Real-time sync
+  unsubGame = onValue(gameRef, snap => {
     const d = snap.val();
     if (!d) return;
-    if (d.turn !== myColor) return; // not my turn yet
-    G.board = d.board; G.turn = d.turn;
-    G.noCapTurns = d.noCapTurns || 0;
-    G.selR = null; G.selC = null; G.validMvs = []; G.multiJump = null;
-    isMyTurn = true;
-    render(); updateTurnStatus(); resetTimer();
-    const { y, b } = Engine.count(G.board);
-    if (!b) endGame(YEL); else if (!y) endGame(BLU);
+    if (d.state) applyState(d.state, d.players);
+  });
+
+  // Chat sync
+  if (unsubChat) { unsubChat(); unsubChat = null; }
+  unsubChat = onValue(chatRef, snap => {
+    const msgs = snap.val();
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = '';
+    if (msgs) {
+      Object.values(msgs)
+        .sort((a, b) => a.ts - b.ts)
+        .forEach(m => renderChatMsg(m));
+    }
+    container.scrollTop = container.scrollHeight;
+  });
+
+  // Welcome message
+  push(chatRef, {
+    sender: 'System',
+    text: `🎮 Game started! You play as ${myColor === 'white' ? 'White (ဖြူ)' : 'Black (မည်း)'}. ${myColor === 'white' ? 'White moves first.' : 'Good luck!'}`,
+    ts: Date.now(),
+    system: true
   });
 }
 
-function listenChat() {
-  if (!window.FB || !roomId) return;
-  const { db, ref, onValue } = window.FB;
-  onValue(ref(db, `rooms/${roomId}/chat`), snap => {
-    const data = snap.val();
-    if (!data) return;
-    const msgs = Object.values(data).sort((a,b) => a.t - b.t);
-    const el = document.getElementById('chat-msgs');
-    el.innerHTML = '';
-    msgs.forEach(m => appendChatDOM(m.sender, m.text, m.sender === (myColor === YEL ? p1Name : p2Name)));
-  });
-}
-
-/* ════════════════════════════════════
-   CHAT
-════════════════════════════════════ */
-function appendChatDOM(sender, text, mine) {
-  const el = document.getElementById('chat-msgs');
-  if (sender === 'system') {
-    const d = document.createElement('div');
-    d.className = 'chat-system'; d.textContent = text;
-    el.appendChild(d);
-  } else {
-    const wrap = document.createElement('div');
-    wrap.className = 'chat-msg ' + (mine ? 'mine' : 'theirs');
-    wrap.innerHTML = `<div class="chat-sender">${sender}</div><div class="chat-bubble">${text}</div>`;
-    el.appendChild(wrap);
-  }
-  el.scrollTop = el.scrollHeight;
-}
-
-function localChat(sender, text, mine) {
-  appendChatDOM(sender, text, mine);
-}
-
-/* ════════════════════════════════════
-   UI CONTROLLER
-════════════════════════════════════ */
-const ui = {
-
-  createRoom() {
-    const name = document.getElementById('inp-name').value.trim() || 'ကစားသမား ၁';
-    p1Name = name; roomId = genCode(); myColor = YEL;
-    const fb = window.FB;
-    if (!fb) { toast('Firebase မချိတ်ဆက်ရသေးပါ'); return; }
-    const { db, ref, set, onValue } = fb;
-    set(ref(db, `rooms/${roomId}`), { p1: name, p2: null, status: 'wait' });
-    document.getElementById('room-code-disp').textContent = roomId;
-    document.getElementById('wait-card').style.display = 'block';
-    // Wait for player 2
-    onValue(ref(db, `rooms/${roomId}/p2`), snap => {
-      const v = snap.val();
-      if (v) { p2Name = v; this._startOnline(); }
-    });
-    toast(`🏠 Room ${roomId} ဖန်တီးပြီး`);
-  },
-
-  joinRoom() {
-    const code = document.getElementById('inp-code').value.trim().toUpperCase();
-    const name = document.getElementById('inp-name').value.trim() || 'ကစားသမား ၂';
-    if (code.length < 4) { toast('⚠️ Code ထည့်ပါ'); return; }
-    p2Name = name; roomId = code; myColor = BLU;
-    const fb = window.FB;
-    if (!fb) { toast('Firebase မချိတ်ဆက်ရသေးပါ'); return; }
-    const { db, ref, get, update } = fb;
-    get(ref(db, `rooms/${code}`)).then(snap => {
-      const d = snap.val();
-      if (!d)   { toast('❌ Room မတွေ့ပါ'); return; }
-      if (d.p2) { toast('❌ Room ပြည့်နေသည်'); return; }
-      p1Name = d.p1;
-      update(ref(db, `rooms/${code}`), { p2: name, status: 'play' });
-      this._startOnline();
-      toast(`✅ Room ${code} ဝင်ပြီး`);
-    });
-  },
-
-  _startOnline() {
-    document.getElementById('wait-card').style.display = 'none';
-    mode = 'online'; isMyTurn = myColor === YEL;
-    this._freshGame(); this._showGame();
-    listenFirebase();
-    listenChat();
-    localChat('system', `Room: ${roomId} | ${p1Name} 🟡 VS 🔵 ${p2Name}`, false);
-  },
-
-  cancelRoom() {
-    if (roomId && window.FB)
-      window.FB.remove(window.FB.ref(window.FB.db, `rooms/${roomId}`));
-    roomId = null;
-    document.getElementById('wait-card').style.display = 'none';
-  },
-
-  startAI() {
-    p1Name = document.getElementById('inp-name').value.trim() || 'ကစားသမား ၁';
-    p2Name = '🤖 AI'; mode = 'ai'; myColor = YEL; isMyTurn = true; roomId = null;
-    this._freshGame(); this._showGame();
-    localChat('system', `${p1Name} VS AI — AI က ဘယ်ဘက် (🔵)`, false);
-  },
-
-  startLocal() {
-    p1Name = document.getElementById('inp-name').value.trim() || 'ကစားသမား ၁';
-    p2Name = 'ကစားသမား ၂'; mode = 'local'; myColor = YEL; isMyTurn = true; roomId = null;
-    this._freshGame(); this._showGame();
-    localChat('system', `${p1Name} 🟡 VS 🔵 ${p2Name}`, false);
-  },
-
-  _freshGame() {
-    clearInterval(timerID);
-    G = {
-      board: Engine.initBoard(), turn: YEL,
-      selR: null, selC: null, validMvs: [],
-      multiJump: null, noCapTurns: 0, over: false, history: []
-    };
-  },
-
-  _showGame() {
-    document.getElementById('lobby').classList.remove('active');
-    document.getElementById('game').classList.add('active');
-    document.getElementById('pname1').textContent = p1Name;
-    document.getElementById('pname2').textContent = p2Name;
-    document.getElementById('sname1').textContent = p1Name;
-    document.getElementById('sname2').textContent = p2Name;
-    updateTurnStatus(); render(); resetTimer();
-  },
-
-  resetGame() {
-    document.getElementById('win-overlay').classList.remove('show');
-    this._freshGame();
-    isMyTurn = myColor === YEL || mode === 'local';
-    updateTurnStatus(); render(); resetTimer();
-    if (mode === 'ai' && G.turn === BLU) setTimeout(doAIMove, 700);
-    document.getElementById('move-log').innerHTML = '';
-    document.getElementById('chat-msgs').innerHTML = '';
-    localChat('system', '— ကစားမှုသစ် စတင်သည် —', false);
-  },
-
-  goLobby() {
-    clearInterval(timerID);
-    if (roomId && window.FB)
-      window.FB.remove(window.FB.ref(window.FB.db, `rooms/${roomId}`));
-    roomId = null; fbUnsub = null;
-    document.getElementById('win-overlay').classList.remove('show');
-    document.getElementById('game').classList.remove('active');
-    document.getElementById('lobby').classList.add('active');
-    document.getElementById('wait-card').style.display = 'none';
-    document.getElementById('move-log').innerHTML = '';
-    document.getElementById('chat-msgs').innerHTML = '';
-  },
-
-  offerDraw() {
-    const msg = 'သရေပေးနိုင်မလား? 🤝';
-    if (mode === 'online') {
-      ui.sendChatText(msg);
-    } else {
-      const ok = confirm('သရေ (Draw) ကြေညာမည်လား?');
-      if (ok) endGame(null);
-    }
-  },
-
-  sendChat() {
-    const inp = document.getElementById('chat-inp');
-    const text = inp.value.trim();
-    if (!text) return;
-    inp.value = '';
-    const sender = myColor === YEL ? p1Name : p2Name;
-    if (mode === 'online' && window.FB && roomId) {
-      const { db, ref, push } = window.FB;
-      push(ref(db, `rooms/${roomId}/chat`), { sender, text, t: Date.now() });
-    } else {
-      // Local chat (both players same screen)
-      localChat(sender, text, G.turn === YEL);
-    }
-  },
-
-  sendChatText(text) {
-    const sender = myColor === YEL ? p1Name : p2Name;
-    if (mode === 'online' && window.FB && roomId) {
-      const { db, ref, push } = window.FB;
-      push(ref(db, `rooms/${roomId}/chat`), { sender, text, t: Date.now() });
-    } else {
-      localChat(sender, text, true);
-    }
-  }
+/* ── CHAT ──────────────────────────────────── */
+window.sendChat = async function() {
+  const ta   = document.getElementById('chat-input');
+  const text = ta.value.trim();
+  if (!text || !chatRef) return;
+  ta.value = '';
+  await push(chatRef, { sender: myName, text, ts: Date.now(), system: false });
 };
 
-// Expose to HTML onclick
-window.ui = ui;
+function renderChatMsg(m) {
+  const container = document.getElementById('chat-messages');
+  const wrap      = document.createElement('div');
+  wrap.className  = 'chat-message'
+    + (m.system              ? ' is-system' : '')
+    + (!m.system && m.sender === myName ? ' is-mine' : '');
 
-/* ════════════════════════════════════
-   INIT
-════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('inp-code').addEventListener('input', e => {
-    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
-  });
-  document.addEventListener('contextmenu', e => {
-    if (e.target.closest('#board')) e.preventDefault();
-  });
-  window.addEventListener('resize', () => { if (!G.over) render(); });
-});
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
 
-/* ════════════════════════════════════
-   TOAST
-════════════════════════════════════ */
-let toastTid = null;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastTid);
-  toastTid = setTimeout(() => el.classList.remove('show'), 3200);
+  if (!m.system) {
+    const sender = document.createElement('div');
+    sender.className   = 'chat-sender';
+    sender.textContent = m.sender;
+    bubble.appendChild(sender);
+  }
+
+  const text = document.createElement('div');
+  text.className   = 'chat-text';
+  text.textContent = m.text;
+  bubble.appendChild(text);
+
+  if (!m.system) {
+    const ts = document.createElement('div');
+    ts.className   = 'chat-time';
+    ts.textContent = new Date(m.ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    bubble.appendChild(ts);
+  }
+
+  wrap.appendChild(bubble);
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
 }
+
+function pushSystemMsg(text) {
+  if (chatRef) push(chatRef, { sender: 'System', text, ts: Date.now(), system: true });
+}
+
+/* ── WIN MODAL ─────────────────────────────── */
+function showWinModal(winner, players) {
+  const isMe    = winner === myColor;
+  const wName   = winner === 'white'
+    ? (players?.white?.name || 'White')
+    : (players?.black?.name || 'Black');
+
+  document.getElementById('win-medal').textContent    = isMe ? '🏆' : '💀';
+  document.getElementById('win-title').textContent    = isMe ? 'VICTORY!' : 'DEFEAT';
+  document.getElementById('win-subtitle').textContent = isMe
+    ? `${wName} conquers the board!`
+    : `${wName} wins this round.`;
+
+  document.getElementById('win-overlay').classList.add('active');
+}
+
+/* ── BACK TO LOBBY ─────────────────────────── */
+window.backToLobby = function() {
+  if (unsubGame) { unsubGame(); unsubGame = null; }
+  if (unsubChat) { unsubChat(); unsubChat = null; }
+  gameId = myColor = null;
+  gameOver = false;
+  selectedCell = null; validMoves = [];
+  chainCapture = null; huffablePiece = null;
+  forcedCaptures = []; prevCounts = { white:12, black:12 };
+  document.getElementById('win-overlay').classList.remove('active');
+  showScreen('lobby');
+};
+
+/* ── COPY ROOM ID ──────────────────────────── */
+window.copyGameId = function() {
+  const id = window._currentRoomId || gameId;
+  if (!id) return;
+  navigator.clipboard.writeText(id).then(() => {
+    ['display-game-id', 'room-id-chip'].forEach(elId => {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      const prev = el.textContent;
+      el.textContent = 'COPIED!';
+      setTimeout(() => { el.textContent = prev; }, 1500);
+    });
+  }).catch(() => {});
+};
+
+/* ── UTILS ─────────────────────────────────── */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+}
+
+function generateRoomId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+/* ── Boot ──────────────────────────────────── */
+initBoard();
+renderBoard();
+updatePips();
+
 </script>
 </body>
 </html>
